@@ -14,10 +14,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Cristian tabacitu",
-            "email": "hello@tabacitu.ro",
-            "homepage": "http://www.tabacitu.ro",
-            "role": "Dick Master"
+            "name": "Infinety",
+            "email": "hello@infinety.com",
         }
     ],
     "require": {
