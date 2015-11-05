@@ -33,12 +33,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Dick\\CRUD\\": "src"
+            "Infinety\\CRUD\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Dick\\CRUD\\Test\\": "tests"
+            "Infinety\\CRUD\\Test\\": "tests"
         }
     },
     "scripts": {
