@@ -1,4 +1,4 @@
-<?php namespace Dick\CRUD;
+<?php namespace Infinety\CRUD;
 
 use Illuminate\Database\Eloquent\Model;
 use DB;
@@ -161,7 +161,7 @@ trait CrudTrait {
 
     public function language()
     {
-        return $this->belongsTo('\Dick\TranslationManager\Models\Language', 'translation_lang', 'abbr');
+        return $this->belongsTo('\Infinety\TranslationManager\Models\Language', 'translation_lang', 'abbr');
     }
 
     /**

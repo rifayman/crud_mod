@@ -38,24 +38,23 @@
 		    <div class="box-footer">
 		    	<div class="form-group">
 		    	  <span>{{ trans('crud.after_saving') }}:</span>
-		          <div class="radio">
-		            <label>
-		              <input type="radio" name="redirect_after_save" value="{{ $crud['route'] }}" checked="">
-		              {{ trans('crud.go_to_the_table_view') }}
-		            </label>
-		          </div>
-		          <div class="radio">
-		            <label>
-		              <input type="radio" name="redirect_after_save" value="{{ $crud['route'].'/create' }}">
-		              {{ trans('crud.let_me_add_another_item') }}
-		            </label>
-		          </div>
-		          <div class="radio">
-		            <label>
-		              <input type="radio" name="redirect_after_save" value="current_item_edit">
-		              {{ trans('crud.edit_the_new_item') }}
-		            </label>
-		          </div>
+					<div class="radio radio-primary">
+
+		              <input type="radio"  name="redirect_after_save" value="{{ $crud['route'] }}" checked="" id="redirect" >
+						<label for="redirect">{{ trans('crud.go_to_the_table_view') }}</label>
+		         	 </div>
+					<div class="radio radio-primary">
+
+		              <input type="radio" name="redirect_after_save" value="{{ $crud['route'].'/create' }}" id="create_new_item">
+
+						<label for="create_new_item">{{ trans('crud.let_me_add_another_item') }}</label>
+
+		          	</div>
+					<div class="radio radio-primary">
+
+					  <input type="radio" name="redirect_after_save" value="current_item_edit" id="edit_new_item">
+		            	<label for="edit_new_item">{{ trans('crud.edit_the_new_item') }}</label>
+		          	</div>
 		        </div>
 
 			  <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />

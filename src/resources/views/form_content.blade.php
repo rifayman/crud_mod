@@ -14,8 +14,8 @@
   {{-- Show the inputs --}}
   @foreach ($crud['fields'] as $field)
     <!-- load the view from the application if it exists, otherwise load the one in the package -->
-	@if(view()->exists('vendor.dick.crud.fields.'.$field['type']))
-		@include('vendor.dick.crud.fields.'.$field['type'], array('field' => $field))
+	@if(view()->exists('crud::fields.'.$field['type']))
+		@include('crud::fields.'.$field['type'], array('field' => $field))
 	@else
 		@include('crud::fields.'.$field['type'], array('field' => $field))
 	@endif
@@ -27,16 +27,18 @@
 <?php
 	$loaded_form_types_css = array();
 	$loaded_form_types_js = array();
+
 ?>
 
-@section('head')
+@section('custom_css')
 	<!-- FORM CONTENT CSS ASSETS -->
 	@foreach ($crud['fields'] as $field)
 		@if(!isset($loaded_form_types_css[$field['type']]) || $loaded_form_types_css[$field['type']]==false)
-			@if (View::exists('vendor.dick.crud.fields.assets.css.'.$field['type'], array('field' => $field)))
-				@include('vendor.dick.crud.fields.assets.css.'.$field['type'], array('field' => $field))
+			@if (View::exists('crud::fields.assets.css.'.$field['type'], array('field' => $field)))
+				@include('crud::fields.assets.css.'.$field['type'], array('field' => $field))
 				<?php $loaded_form_types_css[$field['type']] = true; ?>
 			@elseif (View::exists('crud::fields.assets.css.'.$field['type'], array('field' => $field)))
+
 				@include('crud::fields.assets.css.'.$field['type'], array('field' => $field))
 				<?php $loaded_form_types_css[$field['type']] = true; ?>
 			@endif
@@ -44,14 +46,18 @@
 	@endforeach
 @endsection
 
-@section('scripts')
+@section('custom_js')
 	<!-- FORM CONTENT JAVSCRIPT ASSETS -->
-	@foreach ($crud['fields'] as $field)
+
+	@foreach ($crud['fields'] as $field )
+
 		@if(!isset($loaded_form_types_js[$field['type']]) || $loaded_form_types_js[$field['type']]==false)
-			@if (View::exists('vendor.dick.crud.fields.assets.js.'.$field['type'], array('field' => $field)))
-				@include('vendor.dick.crud.fields.assets.js.'.$field['type'], array('field' => $field))
+
+			@if (View::exists('crud::fields.assets.js.'.$field['type'], array('field' => $field)))
+				@include('crud::fields.assets.js.'.$field['type'], array('field' => $field))
 				<?php $loaded_form_types_js[$field['type']] = true; ?>
 			@elseif (View::exists('crud::fields.assets.js.'.$field['type'], array('field' => $field)))
+
 				@include('crud::fields.assets.js.'.$field['type'], array('field' => $field))
 				<?php $loaded_form_types_js[$field['type']] = true; ?>
 			@endif

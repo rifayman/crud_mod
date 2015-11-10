@@ -1,8 +1,11 @@
 @extends('admin.layout')
 
-@section('head')
+@section('custom_css')
 	<!-- DATA TABLES -->
-    <link href="{{ asset('AdminLTE/plugins/datatables/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/jquery-datatable/media/css/jquery.dataTables.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/jquery-datatable/extensions/FixedColumns/css/dataTables.fixedColumns.min.css') }}">
+    <link media="screen" type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/datatables-responsive/css/datatables.responsive.css') }}">
+
 @endsection
 
 @section('content-header')
@@ -34,7 +37,7 @@
     </div>
     <div class="box-body">
 
-		<table id="crudTable" class="table table-bordered table-striped display">
+		<table id="crudTable" class="table table-hover demo-table-search">
                     <thead>
                       <tr>
                         @if (isset($crud['details_row']) && $crud['details_row']==true)
@@ -100,10 +103,10 @@
                         <td>
                           {{-- <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default"><i class="fa fa-eye"></i> {{ trans('crud.preview') }}</a> --}}
                           @if (!(isset($crud['edit_permission']) && !$crud['edit_permission']))
-                            <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-default"><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
+                            <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-info "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
                           @endif
                            @if (!(isset($crud['delete_permission']) && !$crud['delete_permission']))
-                          <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
+                          <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
                           @endif
                         </td>
                         @endif
@@ -131,14 +134,26 @@
 
     </div><!-- /.box-body -->
   </div><!-- /.box -->
+    <input type="hidden" name="_token" value="{{ csrf_token() }}">
 @endsection
 
-@section('scripts')
+@section('custom_js')
+
+
 	<!-- DATA TABES SCRIPT -->
-    <script src="{{ url('AdminLTE/plugins/datatables/jquery.dataTables.js') }}" type="text/javascript"></script>
-    <script src="{{ url('AdminLTE/plugins/datatables/dataTables.bootstrap.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/jquery-datatable/media/js/jquery.dataTables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/jquery-datatable/extensions/TableTools/js/dataTables.tableTools.min.js') }}" type="text/javascript" ></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/datatables-responsive/js/datatables.responsive.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/jquery-datatable/extensions/Bootstrap/jquery-datatable-bootstrap.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/datatables-responsive/js/lodash.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/admin_theme/assets/plugins/pnotify.custom.min.js') }}" type="text/javascript"></script>
+    <script src="//cdn.datatables.net/plug-ins/1.10.7/api/fnReloadAjax.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
+
+
+
+
 	  jQuery(document).ready(function($) {
 	  	var table = $("#crudTable").DataTable({
         "language": {
@@ -163,7 +178,11 @@
                   "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
                   "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
               }
-          }
+          },
+            "sPaginationType": "bootstrap",
+            "destroy": true,
+            "responsive": true,
+            "scrollCollapse": true
       });
 
       @if (isset($crud['details_row']) && $crud['details_row']==true)
@@ -210,13 +229,7 @@
       } );
       @endif
 
-      $.ajaxPrefilter(function(options, originalOptions, xhr) {
-          var token = $('meta[name="csrf_token"]').attr('content');
 
-          if (token) {
-                return xhr.setRequestHeader('X-XSRF-TOKEN', token);
-          }
-    });
 
       // make the delete button work in the first result page
       register_delete_button_action();
@@ -238,6 +251,9 @@
           if (confirm("{{ trans('crud.delete_confirm') }}") == true) {
               $.ajax({
                   url: delete_url,
+                  beforeSend: function (request){
+                      request.setRequestHeader("X-CSRF-TOKEN", $('[name="_token"]').val());
+                  },
                   type: 'DELETE',
                   success: function(result) {
                       // Show an alert with the result

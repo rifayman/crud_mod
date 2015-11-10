@@ -1,4 +1,4 @@
-<?php namespace Dick\CRUD\Http\Requests;
+<?php namespace Infinety\CRUD\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

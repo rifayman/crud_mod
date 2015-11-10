@@ -1,14 +1,16 @@
-<?php namespace Dick\CRUD\Http\Controllers;
+<?php namespace Infinety\CRUD\Http\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesCommands;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Crypt;
+use yajra\Datatables\Facades\Datatables;
+use Config;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
-use Dick\CRUD\Http\Requests\CrudRequest as StoreRequest;
-use Dick\CRUD\Http\Requests\CrudRequest as UpdateRequest;
+use Infinety\CRUD\Http\Requests\CrudRequest as StoreRequest;
+use Infinety\CRUD\Http\Requests\CrudRequest as UpdateRequest;
 
 class CrudController extends BaseController {
 
@@ -26,6 +28,7 @@ class CrudController extends BaseController {
 						"reorder_permission" => true,
 						"reorder_max_level" => 3,
 						"details_row" => false,
+						"is_translate" => false
 						);
 
 	public function __construct()
@@ -34,7 +37,7 @@ class CrudController extends BaseController {
 
 		// Check for the right roles to access these pages
 		if (!\Entrust::can('view-admin-panel')) {
-	        abort(403, trans('crud.unauthorized_access'));
+	        //abort(403, trans('crud.unauthorized_access'));
 	    }
 	}
 
@@ -45,6 +48,8 @@ class CrudController extends BaseController {
 	 */
 	public function index()
 	{
+
+
 		// SECURITY:
 		// if view_table_permission is false, abort
 		if (isset($this->crud['view_table_permission']) && !$this->crud['view_table_permission']) {
@@ -71,7 +76,7 @@ class CrudController extends BaseController {
 		$this->data['crud'] = $this->crud;
 
 		// load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-		return $this->firstViewThatExists('vendor.dick.crud.list', 'crud::list', $this->data);
+		return $this->firstViewThatExists('vendor.infinety.crud.list', 'crud::list', $this->data);
 	}
 
 
@@ -88,6 +93,7 @@ class CrudController extends BaseController {
 			abort(403, 'Not allowed.');
 		}
 
+
 		// get the fields you need to show
 		if (isset($this->data['crud']['create_fields']))
 		{
@@ -99,9 +105,19 @@ class CrudController extends BaseController {
 		$this->data['crud'] = $this->crud;
 
 		// load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-		return $this->firstViewThatExists('vendor.dick.crud.create', 'crud::create', $this->data);
+		return $this->firstViewThatExists('vendor.infinety.crud.create', 'crud::create', $this->data);
 	}
 
+	/**
+	 * @return mixed
+	 */
+	public function getData()
+	{
+		$model = $this->crud['model'];
+		$data = $model::all();
+
+		return Datatables::of($data)->make(true);
+	}
 
 	/**
 	 * Store a newly created resource in the database.
@@ -243,7 +259,7 @@ class CrudController extends BaseController {
 		// SECURITY:
 		// if delete_permission is false, abort
 		if (isset($this->crud['delete_permission']) && !$this->crud['delete_permission']) {
-			abort(403, trans('crud.unauthorized_access'));
+			//abort(403, trans('crud.unauthorized_access'));
 		}
 
 		$model = $this->crud['model'];
@@ -415,9 +431,12 @@ class CrudController extends BaseController {
 	 */
 	protected function firstViewThatExists($first_view, $second_view, $information)
 	{
+
+
 		// load the first view if it exists, otherwise load the second one
 		if (view()->exists($first_view))
 		{
+
 			return view($first_view, $information);
 		}
 		else
@@ -572,18 +591,37 @@ class CrudController extends BaseController {
 			abort(500, "The CRUD fields are not defined.");
 		}
 
+		if(isset($this->data['crud']['is_translate'])){
+			if($this->data['crud']['is_translate']){
+				$languages = Config::get('configuration.locales');
+			}
+		}
+
 		// if the fields are defined as a string, transform it to a proper array
 		if (!is_array($this->crud['fields']))
 		{
 			$current_fields_array = explode(",", $this->crud['fields']);
 			$proper_fields_array = array();
 
+
+
 			foreach ($current_fields_array as $key => $field) {
-				$proper_fields_array[] = [
+				if($languages){
+					foreach($languages as $lang){
+						$proper_fields_array[$lang] = [
 								'name' => $field,
 								'label' => ucfirst($field), // TODO: also replace _ with space
 								'type' => 'text' // TODO: choose different types of fields depending on the MySQL column type
-							];
+						];
+					}
+				} else {
+					$proper_fields_array[] = [
+							'name' => $field,
+							'label' => ucfirst($field), // TODO: also replace _ with space
+							'type' => 'text' // TODO: choose different types of fields depending on the MySQL column type
+					];
+				}
+
 			}
 
 			$this->crud['fields'] = $proper_fields_array;
@@ -591,9 +629,19 @@ class CrudController extends BaseController {
 
 		// if no field type is defined, assume the "text" field type
 		foreach ($this->crud['fields'] as $k => $field) {
-				if (!isset($this->crud['fields'][$k]['type']))
-					$this->crud['fields'][$k]['type'] = 'text';
-			}
+				if (!isset($this->crud['fields'][$k]['type'])){
+
+					if($languages){
+
+						$this->crud['fields'][$k]['type'] = 'text';
+
+					} else {
+						$this->crud['fields'][$k]['type'] = 'text';
+					}
+
+				}
+
+		}
 
 		// if an entry was passed, we're preparing for the update form, not create
 		if ($entry) {
