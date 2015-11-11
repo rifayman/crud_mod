@@ -1,6 +1,6 @@
 <!-- textarea -->
-  <div class="form-group">
-    <label>{{ $field['label'] }}</label>
+  <div class="form-group form-group-default">
+    <label class="control-label">{{ $field['label'] }}</label>
     <textarea
     	class="form-control"
 

@@ -36,31 +36,32 @@
 		      @endif
 		    </div><!-- /.box-body -->
 		    <div class="box-footer">
-		    	<div class="form-group">
+		    	<div class="radio radio-primary">
 		    	  <span>{{ trans('crud.after_saving') }}:</span>
-					<div class="radio radio-primary">
 
-		              <input type="radio"  name="redirect_after_save" value="{{ $crud['route'] }}" checked="" id="redirect" >
-						<label for="redirect">{{ trans('crud.go_to_the_table_view') }}</label>
-		         	 </div>
-					<div class="radio radio-primary">
+					<div class="row">
+						<div class="col-md-4">
+		                      <input type="radio"  name="redirect_after_save" value="{{ $crud['route'] }}" checked="" id="redirect">
+						      <label for="redirect">{{ trans('crud.go_to_the_table_view') }}</label>
+						</div>
+						<div class="col-md-4">
+		                    <input type="radio" name="redirect_after_save" value="{{ $crud['route'].'/create' }}" id="create_new_item">
+						    <label for="create_new_item">{{ trans('crud.let_me_add_another_item') }}</label>
+						</div>
+						<div class="col-md-4">
+					          <input type="radio" name="redirect_after_save" value="current_item_edit" id="edit_new_item">
+		            	     <label for="edit_new_item">{{ trans('crud.edit_the_new_item') }}</label>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
+					<button type="submit" class="btn btn-success ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-save"></i> {{ trans('crud.add') }}</span></button>
+					<a href="{{ url($crud['route']) }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label">{{ trans('crud.cancel') }}</span></a>
 
-		              <input type="radio" name="redirect_after_save" value="{{ $crud['route'].'/create' }}" id="create_new_item">
+				</div>
 
-						<label for="create_new_item">{{ trans('crud.let_me_add_another_item') }}</label>
-
-		          	</div>
-					<div class="radio radio-primary">
-
-					  <input type="radio" name="redirect_after_save" value="current_item_edit" id="edit_new_item">
-		            	<label for="edit_new_item">{{ trans('crud.edit_the_new_item') }}</label>
-		          	</div>
-		        </div>
-
-			  <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-			  <button type="submit" class="btn btn-success ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-save"></i> {{ trans('crud.add') }}</span></button>
-		      <a href="{{ url($crud['route']) }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label">{{ trans('crud.cancel') }}</span></a>
-		    </div><!-- /.box-footer-->
+		     </div><!-- /.box-footer-->
 
 		  </div><!-- /.box -->
 		  {!! Form::close() !!}

@@ -40,9 +40,7 @@
 		<table id="crudTable" class="table table-hover demo-table-search">
                     <thead>
                       <tr>
-                        @if (isset($crud['details_row']) && $crud['details_row']==true)
-                          <th></th> <!-- expand/minimize button column -->
-                        @endif
+
 
                         {{-- Table columns --}}
                         @foreach ($crud['columns'] as $column)
@@ -59,12 +57,7 @@
                       @foreach ($entries as $k => $entry)
                       <tr data-entry-id="{{ $entry->id }}">
 
-                        @if (isset($crud['details_row']) && $crud['details_row']==true)
-                          <!-- expand/minimize button column -->
-                          <td class="details-control text-center cursor-pointer">
-                            <i class="fa fa-plus-square-o"></i>
-                          </td>
-                        @endif
+
 
                         @foreach ($crud['columns'] as $column)
                           @if (isset($column['type']) && $column['type']=='select_multiple')
@@ -103,10 +96,10 @@
                         <td>
                           {{-- <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default"><i class="fa fa-eye"></i> {{ trans('crud.preview') }}</a> --}}
                           @if (!(isset($crud['edit_permission']) && !$crud['edit_permission']))
-                            <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-info "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
+                            <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
                           @endif
                            @if (!(isset($crud['delete_permission']) && !$crud['delete_permission']))
-                          <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
+                          <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
                           @endif
                         </td>
                         @endif
@@ -116,9 +109,6 @@
                     </tbody>
                     <tfoot>
                       <tr>
-                        @if (isset($crud['details_row']) && $crud['details_row']==true)
-                          <th></th> <!-- expand/minimize button column -->
-                        @endif
 
                         {{-- Table columns --}}
                         @foreach ($crud['columns'] as $column)
