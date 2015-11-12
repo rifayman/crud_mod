@@ -1,5 +1,5 @@
 {
-    "name": "rifayman/crud_mod",
+    "name": "infinety/crud_mod",
     "description": "Quickly build an admin interface for your Eloquent models, using Laravel 5. Build a CMS in a matter of minutes.",
     "keywords": [
         "CRUD",
@@ -7,9 +7,7 @@
         "update",
         "delete",
         "read",
-        "admin panel",
-        "admin interface",
-        "CMS"
+        "infinety",
     ],
     "license": "MIT",
     "authors": [
