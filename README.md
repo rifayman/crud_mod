@@ -17,6 +17,11 @@ Via Composer
 $ composer require infinety-es/crud/
 ```
 
+Add this under service providers array on config/app.php
+```php
+Vinkla\Hashids\HashidsServiceProvider::class
+```
+
 Add this to your config/app.php, under "aliases":
 
 ```php
