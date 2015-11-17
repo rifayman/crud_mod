@@ -31,7 +31,11 @@
 		      @if(view()->exists('vendor.dick.crud.form_content'))
 		      	@include('vendor.dick.crud.form_content')
 		      @else
-		      	@include('crud::form_content')
+					@if(isset($crud["is_translate"]) && $crud["is_translate"] = true)
+						@include('crud::form_content_languages')
+					@else
+						@include('crud::form_content')
+					@endif
 		      @endif
 		    </div><!-- /.box-body -->
 		    <div class="box-footer">

@@ -83,6 +83,7 @@ class CrudServiceProvider extends ServiceProvider
         Route::get($name.'/{id}/details', $controller.'@showDetailsRow');
         Route::get($name.'/{id}/translate/{lang}', $controller.'@translateItem');
         Route::post($name.'/getData', $controller.'@getData');
+
         Route::resource($name, $controller, $options);
 
     }
