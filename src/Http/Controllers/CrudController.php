@@ -161,7 +161,7 @@ class CrudController extends BaseController {
 		$values_to_store = $this->compactFakeFields(\Request::all());
 
         $values_to_store = $this->hasFilesToUpload($values_to_store);
-        dd($values_to_store);
+
         $translated_items = false;
         if(isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true){
             $translated_items = $values_to_store["translate"];
@@ -574,8 +574,13 @@ class CrudController extends BaseController {
                     // add it to the request in its appropriate variable - the one defined, if defined
 
                     if (isset($field['store_in'])) {
+                        if($field['type'] == 'image' || $field['type'] == 'upload'){
+                            $file = \Request::file($field['name']);
+                            $request[$field['store_in']][$field['name']] = $file->getClientOriginalName();
+                        } else {
+                            $request[$field['store_in']][$field['name']] = $request[$field['name']];
+                        }
 
-                        $request[$field['store_in']][$field['name']] = $request[$field['name']];
 
                         $remove_fake_field = array_pull($request, $field['name']);
                         if(!in_array($field['store_in'], $fake_field_columns_to_encode, true)){
@@ -585,9 +590,12 @@ class CrudController extends BaseController {
                     }
                     else //otherwise in the one defined in the $crud variable
                     {
-
-                        $request['extras'][$field['name']] = $request[$field['name']];
-
+                        if($field['type'] == 'image' || $field['type'] == 'upload'){
+                            $file = \Request::file($field['name']);
+                            $request['extras'][$field['name']] = $file->getClientOriginalName();
+                        } else {
+                            $request['extras'][$field['name']] = $request[$field['name']];
+                        }
                         $remove_fake_field = array_pull($request, $field['name']);
                         if(!in_array('extras', $fake_field_columns_to_encode, true)){
                             array_push($fake_field_columns_to_encode, 'extras');
@@ -640,20 +648,34 @@ class CrudController extends BaseController {
         } else {
             foreach ($this->crud['fields'] as $k => $field) {
 
+
                 // if it's a fake field
                 if (isset($this->crud['fields'][$k]['fake']) && $this->crud['fields'][$k]['fake']==true) {
                     // add it to the request in its appropriate variable - the one defined, if defined
                     if (isset($this->crud['fields'][$k]['store_in'])) {
-                        $request[$this->crud['fields'][$k]['store_in']][$this->crud['fields'][$k]['name']] = $request[$this->crud['fields'][$k]['name']];
+
+                        if($field['type'] == 'image' || $field['type'] == 'upload'){
+                            $file = \Request::file($field['name']);
+                            $request[$this->crud['fields'][$k]['store_in']][$this->crud['fields'][$k]['name']] = $file->getClientOriginalName();
+                        } else {
+                            $request[$this->crud['fields'][$k]['store_in']][$this->crud['fields'][$k]['name']] = $request[$this->crud['fields'][$k]['name']];
+                        }
 
                         $remove_fake_field = array_pull($request, $this->crud['fields'][$k]['name']);
+
                         if(!in_array($this->crud['fields'][$k]['store_in'], $fake_field_columns_to_encode, true)){
                             array_push($fake_field_columns_to_encode, $this->crud['fields'][$k]['store_in']);
                         }
                     }
                     else //otherwise in the one defined in the $crud variable
                     {
-                        $request['extras'][$this->crud['fields'][$k]['name']] = $request[$this->crud['fields'][$k]['name']];
+                        if($field['type'] == 'image' || $field['type'] == 'upload'){
+                            $file = \Request::file($field['name']);
+                            $request['extras'][$this->crud['fields'][$k]['name']] = $file->getClientOriginalName();
+                        } else {
+                            $request['extras'][$this->crud['fields'][$k]['name']] = $request[$this->crud['fields'][$k]['name']];
+                        }
+
 
                         $remove_fake_field = array_pull($request, $this->crud['fields'][$k]['name']);
                         if(!in_array('extras', $fake_field_columns_to_encode, true)){
@@ -671,7 +693,6 @@ class CrudController extends BaseController {
 				$request[$value] = json_encode($request[$value]);
 			}
 		}
-
 
 		// if there are no fake fields defined, this will just return the original Request in full
 		// since no modifications or additions have been made to $request
@@ -830,14 +851,14 @@ class CrudController extends BaseController {
 		}
 
 
-
-
 		// PREREQUISITES CHECK:
 		// if the fields aren't set, trigger error
 		if (!isset($this->crud['fields']))
 		{
 			abort(500, "The CRUD fields are not defined.");
 		}
+
+
         $languages = false;
 		if(isset($this->data['crud']['is_translate'])){
 
@@ -1080,7 +1101,6 @@ class CrudController extends BaseController {
                     $folder = $this->getUploadFolder();
                     $uploadNames = $this->uploadFile($folder, $filesToUpload, $name);
                 }
-                dd($uploadNames);
 
 
                 //$fileExploded=array_filter(explode('||',$fieldNames));
