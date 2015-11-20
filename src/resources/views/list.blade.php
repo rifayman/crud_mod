@@ -5,8 +5,8 @@
 <link type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/jquery-datatable/media/css/jquery.dataTables.css') }}">
 <link type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/jquery-datatable/extensions/FixedColumns/css/dataTables.fixedColumns.min.css') }}">
 <link media="screen" type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/datatables-responsive/css/datatables.responsive.css') }}">
-
 <link type="text/css" rel="stylesheet" href="{{ asset('admin_theme/assets/plugins/sweetalert/sweetalert.css') }}">
+
 @endsection
 
 @section('content-header')
@@ -35,6 +35,12 @@
                     <a href="{{ url($crud['route'].'/reorder') }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-arrows"></i> {{ trans('crud.reorder') }} {{ $crud['entity_name_plural'] }}</span></a>
                 @endif
             @endif
+
+            <div class="row col-md-3 pull-right no-margin no-padding">
+                <div class="col-xs-12 no-margin no-padding">
+                    <input type="text" id="search-table" class="form-control pull-right" placeholder="Buscar">
+                </div>
+            </div>
         </div>
         <div class="box-body">
 
@@ -54,73 +60,77 @@
                 </tr>
                 </thead>
                 <tbody>
+                @if(isset($crud["ajax_load"]) && $crud["ajax_load"] == true )
 
-                @foreach ($entries as $k => $entry)
-                    <tr data-entry-id="{{ $entry->id }}">
+                @else
+                    @foreach ($entries as $k => $entry)
+                        <tr data-entry-id="{{ $entry->id }}">
 
 
 
-                        @foreach ($crud['columns'] as $column)
-                            @if (isset($column['type']) && $column['type']=='select_multiple')
-                                {{-- relationships with pivot table (n-n) --}}
-                                <td><?php
-                                    $results = $entry->{$column['entity']}()->getResults();
-                                    if ($results && $results->count()) {
-                                        $results_array = $results->lists($column['attribute'], 'id');
-                                        echo implode(', ', $results_array->toArray());
-                                    }
-                                    else
-                                    {
-                                        echo '-';
-                                    }
-                                    ?></td>
-                            @elseif (isset($column['type']) && $column['type']=='select')
-                                {{-- single relationships (1-1, 1-n) --}}
-                                <td><?php
-                                    if ($entry->{$column['entity']}()->getResults()) {
-                                        echo $entry->{$column['entity']}()->getResults()->{$column['attribute']};
-                                    }
-                                    ?></td>
-                            @elseif (isset($column['type']) && $column['type']=='model_function')
-                                {{-- custom return value --}}
-                                <td><?php
-                                    echo $entry->{$column['function_name']}();
-                                    ?></td>
-                            @else
-                                {{-- regular object attribute --}}
-                                <td>{{ str_limit(strip_tags($entry->$column['name']), 80, "[...]") }}</td>
+                            @foreach ($crud['columns'] as $column)
+                                @if (isset($column['type']) && $column['type']=='select_multiple')
+                                    {{-- relationships with pivot table (n-n) --}}
+                                    <td><?php
+                                        $results = $entry->{$column['entity']}()->getResults();
+                                        if ($results && $results->count()) {
+                                            $results_array = $results->lists($column['attribute'], 'id');
+                                            echo implode(', ', $results_array->toArray());
+                                        }
+                                        else
+                                        {
+                                            echo '-';
+                                        }
+                                        ?></td>
+                                @elseif (isset($column['type']) && $column['type']=='select')
+                                    {{-- single relationships (1-1, 1-n) --}}
+                                    <td><?php
+                                        if ($entry->{$column['entity']}()->getResults()) {
+                                            echo $entry->{$column['entity']}()->getResults()->{$column['attribute']};
+                                        }
+                                        ?></td>
+                                @elseif (isset($column['type']) && $column['type']=='model_function')
+                                    {{-- custom return value --}}
+                                    <td><?php
+                                        echo $entry->{$column['function_name']}();
+                                        ?></td>
+                                @else
+                                    {{-- regular object attribute --}}
+                                    <td>{{ str_limit(strip_tags($entry->$column['name']), 80, "[...]") }}</td>
+                                @endif
+
+                            @endforeach
+
+                            @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
+                                <td>
+                                    {{-- <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default"><i class="fa fa-eye"></i> {{ trans('crud.preview') }}</a> --}}
+                                    @if (!(isset($crud['edit_permission']) && !$crud['edit_permission']))
+                                        <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
+                                    @endif
+                                    @if (!(isset($crud['delete_permission']) && !$crud['delete_permission']))
+                                        <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
+                                    @endif
+                                </td>
                             @endif
+                        </tr>
+                    @endforeach
+                @endif
 
-                        @endforeach
-
-                        @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
-                            <td>
-                                {{-- <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default"><i class="fa fa-eye"></i> {{ trans('crud.preview') }}</a> --}}
-                                @if (!(isset($crud['edit_permission']) && !$crud['edit_permission']))
-                                    <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
-                                @endif
-                                @if (!(isset($crud['delete_permission']) && !$crud['delete_permission']))
-                                    <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
-                                @endif
-                            </td>
-                        @endif
-                    </tr>
-                @endforeach
 
                 </tbody>
-                <tfoot>
-                <tr>
+                {{--<tfoot>--}}
+                {{--<tr>--}}
 
                     {{-- Table columns --}}
-                    @foreach ($crud['columns'] as $column)
-                        <th>{{ $column['label'] }}</th>
-                    @endforeach
+                    {{--@foreach ($crud['columns'] as $column)--}}
+                        {{--<th>{{ $column['label'] }}</th>--}}
+                    {{--@endforeach--}}
 
-                    @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
-                        <th>{{ trans('crud.actions') }}</th>
-                    @endif
-                </tr>
-                </tfoot>
+                    {{--@if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )--}}
+                        {{--<th>{{ trans('crud.actions') }}</th>--}}
+                    {{--@endif--}}
+                {{--</tr>--}}
+                {{--</tfoot>--}}
             </table>
 
         </div><!-- /.box-body -->
@@ -147,35 +157,89 @@
 
 
         jQuery(document).ready(function($) {
-            var table = $("#crudTable").DataTable({
-                "language": {
-                    "emptyTable":     "{{ trans('crud.emptyTable') }}",
-                    "info":           "{{ trans('crud.info') }}",
-                    "infoEmpty":      "{{ trans('crud.infoEmpty') }}",
-                    "infoFiltered":   "{{ trans('crud.infoFiltered') }}",
-                    "infoPostFix":    "{{ trans('crud.infoPostFix') }}",
-                    "thousands":      "{{ trans('crud.thousands') }}",
-                    "lengthMenu":     "{{ trans('crud.lengthMenu') }}",
-                    "loadingRecords": "{{ trans('crud.loadingRecords') }}",
-                    "processing":     "{{ trans('crud.processing') }}",
-                    "search":         "{{ trans('crud.search') }}",
-                    "zeroRecords":    "{{ trans('crud.zeroRecords') }}",
-                    "paginate": {
-                        "first":      "{{ trans('crud.paginate.first') }}",
-                        "last":       "{{ trans('crud.paginate.last') }}",
-                        "next":       "{{ trans('crud.paginate.next') }}",
-                        "previous":   "{{ trans('crud.paginate.previous') }}"
-                    },
-                    "aria": {
-                        "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
-                        "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
-                    }
-                },
-                "sPaginationType": "bootstrap",
-                "destroy": true,
-                "responsive": true,
-                "scrollCollapse": true
-            });
+
+
+            @if(isset($crud["ajax_load"]) && $crud["ajax_load"] == true )
+
+                table = $('#crudTable');
+                var settings = {
+                        "language": {
+                            "emptyTable":     "{{ trans('crud.emptyTable') }}",
+                            "info":           "{{ trans('crud.info') }}",
+                            "infoEmpty":      "{{ trans('crud.infoEmpty') }}",
+                            "infoFiltered":   "{{ trans('crud.infoFiltered') }}",
+                            "infoPostFix":    "{{ trans('crud.infoPostFix') }}",
+                            "thousands":      "{{ trans('crud.thousands') }}",
+                            "lengthMenu":     "{{ trans('crud.lengthMenu') }}",
+                            "loadingRecords": "{{ trans('crud.loadingRecords') }}",
+                            "processing":     "{{ trans('crud.processing') }}",
+                            "search":         "{{ trans('crud.search') }}",
+                            "zeroRecords":    "{{ trans('crud.zeroRecords') }}",
+                            "paginate": {
+                                "first":      "{{ trans('crud.paginate.first') }}",
+                                "last":       "{{ trans('crud.paginate.last') }}",
+                                "next":       "{{ trans('crud.paginate.next') }}",
+                                "previous":   "{{ trans('crud.paginate.previous') }}"
+                            },
+                            "aria": {
+                                "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
+                                "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
+                            }
+                        },
+                        "sDom": "<'table-responsive't><'row'<p i>>",
+                        "sPaginationType": "bootstrap",
+                        "destroy": true,
+                        "responsive": true,
+                        "scrollCollapse": true,
+                        "processing": true,
+                        "serverSide": true,
+                        "iDisplayLength": 50,
+                        "ajax" : "{{ url($crud["route"]) }}/getData",
+                        "columns": [
+                            @foreach($crud["columns"] as $column)
+                            {data: "{{ $column["name"] }}", name: "{{ $column["name"] }}" },
+                            @endforeach
+                            @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
+                            {data: 'actions', name: 'actions'}
+                            @endif
+                        ]
+                    };
+                table.dataTable(settings);
+                $('#search-table').keyup(function() {
+                    table.fnFilter($(this).val());
+                });
+            @else
+                var table = $("#crudTable").DataTable({
+                        "language": {
+                            "emptyTable":     "{{ trans('crud.emptyTable') }}",
+                            "info":           "{{ trans('crud.info') }}",
+                            "infoEmpty":      "{{ trans('crud.infoEmpty') }}",
+                            "infoFiltered":   "{{ trans('crud.infoFiltered') }}",
+                            "infoPostFix":    "{{ trans('crud.infoPostFix') }}",
+                            "thousands":      "{{ trans('crud.thousands') }}",
+                            "lengthMenu":     "{{ trans('crud.lengthMenu') }}",
+                            "loadingRecords": "{{ trans('crud.loadingRecords') }}",
+                            "processing":     "{{ trans('crud.processing') }}",
+                            "search":         "{{ trans('crud.search') }}",
+                            "zeroRecords":    "{{ trans('crud.zeroRecords') }}",
+                            "paginate": {
+                                "first":      "{{ trans('crud.paginate.first') }}",
+                                "last":       "{{ trans('crud.paginate.last') }}",
+                                "next":       "{{ trans('crud.paginate.next') }}",
+                                "previous":   "{{ trans('crud.paginate.previous') }}"
+                            },
+                            "aria": {
+                                "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
+                                "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
+                            }
+                        },
+                        "sDom": "<'table-responsive't><'row'<p i>>",
+                        "sPaginationType": "bootstrap",
+                        "destroy": true,
+                        "responsive": true,
+                        "scrollCollapse": true
+                    });
+            @endif
 
             @if (isset($crud['details_row']) && $crud['details_row']==true)
             // Add event listener for opening and closing details
