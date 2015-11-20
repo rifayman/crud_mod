@@ -6,6 +6,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Crypt;
 use Config;
 use Storage;
@@ -26,6 +27,7 @@ class CrudController extends BaseController {
 						"model" => "\App\Models\Entity",
 						"entity_name" => "entry",
 						"entity_name_plural" => "entries",
+                        "ajax_load" => false,
 						"view_table_permission" => true,
 						"add_permission" => true,
 						"edit_permission" => true,
@@ -127,15 +129,99 @@ class CrudController extends BaseController {
 		return $this->firstViewThatExists('vendor.infinety.crud.create', 'crud::create', $this->data);
 	}
 
-	/**
-	 * @return mixed
-	 */
+
+    /**
+     * Return model in Datatable ajax | Also search by ajax
+     *
+     * @return mixed
+     */
 	public function getData()
 	{
-		$model = $this->crud['model'];
-		$data = $model::all();
+        $model = $this->crud['model'];
 
-		return Datatables::of($data)->make(true);
+        $columns = $this->crud['columns'];
+
+        //Check if has a pivot column
+        $pivots = array_pluck($this->crud['columns'], ['pivot']);
+        $isPivot = array_search("true", $pivots);
+        if($isPivot != false){
+
+            $pivotField = $this->crud['columns'][$isPivot];
+            //dd($pivotField);
+            $data = $model::select('*')->get();
+
+        } else {
+            $data = $model::select('*')->get();
+        }
+
+        $datatable = Datatables::of($data);
+
+        foreach($columns as $column){
+
+            if (isset($column['type']) && $column['type']=='select_multiple'){
+                $datatable
+                    ->addColumn($column['name'], '')
+                    ->editColumn($column['name'], function($columnInfo) use ($column) {
+
+                        $results = $columnInfo->{$column['entity']}()->getResults();
+                        $html = '-';
+                        if ($results && $results->count()) {
+                            $results_array = $results->lists($column['attribute'], 'id');
+                            $html = implode(', ', $results_array->toArray());
+                        }
+                        return $html;
+                    });
+            } elseif ((isset($column['type']) && $column['type']=='select')){
+                $datatable
+                    ->addColumn($column['name'], '')
+                    ->editColumn($column['name'], function($columnInfo) use ($column) {
+                        $html = '-';
+                        if ($columnInfo->{$column['entity']}()->getResults()) {
+                            $html = $columnInfo->{$column['entity']}()->getResults()->{$column['attribute']};
+                        }
+                        return $html;
+                    });
+            } elseif (isset($column['type']) && $column['type']=='model_function'){
+                $datatable
+                    ->addColumn($column['name'], '')
+                    ->editColumn($column['name'], function($columnInfo) use ($column) {
+                        return $columnInfo->{$column['function_name']}();
+                    });
+            } else {
+                if(array_search("content", $columns)){
+                    $datatable
+                        ->editColumn($column['name'], function($columnInfo) use ($column) {
+                            return strip_tags(Str::words($columnInfo->content, 50, '...'));
+                        });
+                } else {
+                    $datatable
+                        ->editColumn($column['name'], function($columnInfo) use ($column) {
+                            return str_limit(strip_tags($columnInfo->$column['name']), 80, "[...]");
+                        });
+
+                }
+            }
+
+        }
+
+        if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) ){
+            $datatable
+                ->addColumn('actions', '')
+                ->editColumn('actions', function($column) {
+                    $html = "";
+                    if(!(isset($crud['edit_permission']) && !$crud['edit_permission'])){
+                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i>'.trans('crud.edit').'</a>';
+                    }
+                    if(!(isset($crud['delete_permission']) && !$crud['delete_permission'])){
+                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i>'.trans('crud.delete').'</a>';
+                    }
+                    return $html;
+                });
+        }
+
+
+        return $datatable->make(true);
+
 	}
 
 	/**
