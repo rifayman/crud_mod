@@ -12,7 +12,7 @@ use Config;
 use Storage;
 use starter\Http\Locale;
 use Prologue\Alerts\Facades\Alert;
-use yajra\Datatables\Facades\Datatables;
+use Datatables;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use Infinety\CRUD\Http\Requests\CrudRequest as StoreRequest;
 use Infinety\CRUD\Http\Requests\CrudRequest as UpdateRequest;
@@ -187,6 +187,12 @@ class CrudController extends BaseController {
                     ->editColumn($column['name'], function($columnInfo) use ($column) {
                         return $columnInfo->{$column['function_name']}();
                     });
+            } elseif (isset($column['type']) && $column['type']=='image'){
+                $datatable
+                    ->addColumn($column['name'], '')
+                    ->editColumn($column['name'], function($columnInfo) use ($column) {
+                        return "<img src='".asset('uploads/'.$columnInfo->$column['name'])."' width='50%' />";
+                    });
             } else {
                 if(array_search("content", $columns)){
                     $datatable
@@ -215,10 +221,10 @@ class CrudController extends BaseController {
                 ->editColumn('actions', function($column) {
                     $html = "";
                     if(!(isset($crud['edit_permission']) && !$crud['edit_permission'])){
-                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i>'.trans('crud.edit').'</a>';
+                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit p-r-10"></i>'._(trans('crud.edit')).'</a>';
                     }
                     if(!(isset($crud['delete_permission']) && !$crud['delete_permission'])){
-                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i>'.trans('crud.delete').'</a>';
+                        $html .= '<a href="'.url($this->crud["route"]).'/'.$column->id.'" class="btn btn-xs btn-danger m-l-5" data-button-type="delete"><i class="fa fa-trash p-r-10 "></i>'._(trans('crud.delete')).'</a>';
                     }
                     return $html;
                 });
@@ -237,9 +243,7 @@ class CrudController extends BaseController {
 	public function storeCrud(StoreRequest $request = null)
 	{
 
-
-
-		// SECURITY:
+        // SECURITY:
 		// if add_permission is false, abort
 		if (isset($this->crud['add_permission']) && !$this->crud['add_permission']) {
 			abort(403, 'Not allowed.');
@@ -373,6 +377,8 @@ class CrudController extends BaseController {
 
         $values_to_store = $this->compactFakeFields(\Request::all());
 
+        $values_to_store = $this->hasFilesToUpload($values_to_store);
+
 		$translated_items = false;
         if(isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true){
             $translated_items = $values_to_store["translate"];
@@ -392,7 +398,6 @@ class CrudController extends BaseController {
         $item = $model::find(\Request::input('id'))
                         ->update($values_to_store);
 
-
         if($translated_items){
 
             $modelTranslatable = $this->crud["model_translate"];
@@ -400,9 +405,19 @@ class CrudController extends BaseController {
             foreach($this->data['crud']['languages'] as $language){
 				$table = new $model;
 				$table = $table->getTable();
-                $modelTranslatable::where($table."_id", \Request::input('id'))
-                                    ->where("locale", $language["iso"])
-                                    ->update($translated_items[$language["iso"]]);
+				$exists = $modelTranslatable::where($table."_id", \Request::input('id'))
+											->where("locale", $language["iso"])->first();
+				if($exists){
+					$modelTranslatable::where($table."_id", \Request::input('id'))
+							->where("locale", $language["iso"])
+							->update($translated_items[$language["iso"]]);
+				} else {
+
+					$itemInfo = array($table."_id" => \Request::input('id'), "locale"=> $language["iso"]);
+					$translatedFIelds = array_merge($itemInfo,$translated_items[$language["iso"]]);
+					$modelTranslatable::create($translatedFIelds);
+				}
+
             }
         }
 
@@ -418,6 +433,12 @@ class CrudController extends BaseController {
 
 		// show a success message
 		\Alert::success(trans('crud.update_success'))->flash();
+
+
+        if( isset($this->crud["redirect_self"]) && $this->crud["redirect_self"] == true ){
+
+            return Redirect::to($this->crud['route'].'/'.\Request::input('id').'/edit');
+        }
 
 		return \Redirect::to($this->crud['route']);
 	}
@@ -458,6 +479,7 @@ class CrudController extends BaseController {
 
 		$model = $this->crud['model'];
 		$item = $model::find($id);
+        $this->checkHasImagesToDelete($item);
 		$item->delete();
 
 		return 'true';
@@ -1170,38 +1192,43 @@ class CrudController extends BaseController {
         }
         foreach ($fields as $k => $field) {
 
-            if ($field['type'] == 'image' || $field['type'] == 'upload') {
-
-
+            if (isset($field['type']) && ($field['type'] == 'image' || $field['type'] == 'upload')) {
 
                 $filesToUpload = \Request::file($field['name']);
 
-
                 $fileCount = count($filesToUpload);
+                if($fileCount != 0){
+                    if($fileCount > 1){
 
-                if($fileCount > 1){
+                        $fieldNames = "";
 
-                    $fieldNames = "";
-
-                    //Multiple Upload
-                    foreach($fileToUpload as $file) {
-                        if (!is_null($file)) {
-                            $name = filter_var($file->getClientOriginalName(), FILTER_SANITIZE_STRING);
-                            $folder = $this->getUploadFolder();
-                            $uploadNames .= $this->uploadFile($folder, $file, $name)."||";
+                        //Multiple Upload
+                        foreach($fileToUpload as $file) {
+                            if (!is_null($file)) {
+                                $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                                $name = filter_var($name, FILTER_SANITIZE_STRING);
+                                $name = $this->sanitize($name).".".$file->getClientOriginalExtension();
+                                $folder = $this->getUploadFolder();
+                                $uploadNames .= $this->uploadFile($folder, $file, $name, true, $field)."||";
+                            }
                         }
+                    } else {
+                        //Single Upload
+
+                        $name = pathinfo($filesToUpload->getClientOriginalName(), PATHINFO_FILENAME);
+                        $name = filter_var($name, FILTER_SANITIZE_STRING);
+                        $name = $this->sanitize($name).".".$filesToUpload->getClientOriginalExtension();
+                        $folder = $this->getUploadFolder();
+
+                        $uploadNames = $this->uploadFile($folder, $filesToUpload, $name, true, $field);
                     }
-                } else {
-                    //Single Upload
-                    $name = filter_var($filesToUpload->getClientOriginalName(), FILTER_SANITIZE_STRING);
-                    $folder = $this->getUploadFolder();
-                    $uploadNames = $this->uploadFile($folder, $filesToUpload, $name);
+                    $values_to_store[$field['name']] = $uploadNames;
                 }
 
 
                 //$fileExploded=array_filter(explode('||',$fieldNames));
                 //dd($fileExploded);
-                $values_to_store[$field['name']] = $uploadNames;
+
             }
 
         }
@@ -1227,9 +1254,9 @@ class CrudController extends BaseController {
 
 
 
-    private function uploadFile($folder, $file, $name, $checkExistsFile = false ){
+    private function uploadFile($folder, $file, $name, $checkExistsFile = false, $field = null ){
 
-        if($checkExistsFile){
+        if($checkExistsFile && isset($field["value"])){
             if (Storage::disk('upload')->exists($field["value"])) {
                 Storage::disk('upload')->delete($field["value"]);
             }
@@ -1241,6 +1268,39 @@ class CrudController extends BaseController {
         }
         Storage::disk('upload')->put($folder . '/' . $name, File::get($file));
         return $folder . '/' . $name;
+    }
+
+    private function checkHasImagesToDelete($item){
+        $fields = $this->getFields();
+
+        //Only upload files for normal fields, not translated ;)
+        if(isset($fields["normal"])){
+            $fields = $fields["normal"];
+        }
+        foreach ($fields as $k => $field) {
+            if (isset( $field['type'] ) && ( $field['type'] == 'image' || $field['type'] == 'upload' )) {
+                if (Storage::disk('upload')->exists($item[$field["name"]])) {
+                    Storage::disk('upload')->delete($item[$field["name"]]);
+                }
+            }
+        }
+    }
+
+
+    function sanitize($string, $forceLowercase = true, $noAccents = true)
+    {
+        $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
+            "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
+            "â€”", "â€“", ",", "<", ".", ">", "/", "?");
+        $clean = trim(str_replace($strip, "", strip_tags($string)));
+        $clean = preg_replace('/\s+/', "-", $clean);
+        $clean = ($noAccents) ? preg_replace("/[^a-zA-Z0-9]/", "", $clean) : $clean ;
+
+        return ($forceLowercase) ?
+            (function_exists('mb_strtolower')) ?
+                mb_strtolower($clean, 'UTF-8') :
+                strtolower($clean) :
+            $clean;
     }
 
 }

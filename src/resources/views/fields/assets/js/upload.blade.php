@@ -7,7 +7,7 @@
 
            reader.onload = function (e) {
                console.log(reader);
-               $('.output').attr('src', e.target.result);
+               $(input).parent().find('.output').attr('src', e.target.result);
            }
 
            reader.readAsDataURL(input.files[0]);

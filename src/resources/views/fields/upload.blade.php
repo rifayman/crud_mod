@@ -9,7 +9,7 @@
         @endif
 
         {!! Form::label('image', 'Choose an image') !!}
-        {!! Form::file('image',['name' => $field["name"],  'class' => 'upload_file']) !!}
+        {!! Form::file('image',['name' => $field["name"], 'id' => $field["name"],  'class' => 'upload_file']) !!}
 
 
 </div>

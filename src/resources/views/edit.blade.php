@@ -3,12 +3,12 @@
 @section('content-header')
 	<section class="content-header">
 	  <h1>
-	    {{ trans('crud.edit') }} <span class="text-lowercase">{{ $crud['entity_name'] }}</span>
+	    {{ _(trans('crud.edit')) }} <span class="text-lowercase">{{ $crud['entity_name'] }}</span>
 	  </h1>
 	  <ol class="breadcrumb">
 	    <li><a href="{{ url('admin/dashboard') }}">Admin</a></li>
 	    <li><a href="{{ url($crud['route']) }}" class="text-capitalize">{{ $crud['entity_name_plural'] }}</a></li>
-	    <li class="active">{{ trans('crud.edit') }}</li>
+	    <li class="active">{{ _(trans('crud.edit')) }}</li>
 	  </ol>
 	</section>
 @endsection
@@ -18,13 +18,13 @@
 	<div class="col-md-8 col-md-offset-2">
 		<!-- Default box -->
 		@if (!(isset($crud['view_table_permission']) && !$crud['view_table_permission']))
-			<a href="{{ url($crud['route']) }}"><i class="fa fa-angle-double-left"></i> {{ trans('crud.back_to_all') }} <span class="text-lowercase">{{ $crud['entity_name_plural'] }}</span></a><br><br>
+			<a href="{{ url($crud['route']) }}"><i class="fa fa-angle-double-left"></i> {{ _(trans('crud.back_to_all')) }} </a><br><br>
 		@endif
 
-		  {!! Form::open(array('url' => $crud['route'].'/'.$entry->id, 'method' => 'put')) !!}
+		  {!! Form::open(array('url' => $crud['route'].'/'.$entry->id, 'method' => 'put', 'files' => true)) !!}
 		  <div class="box">
 		    <div class="box-header with-border">
-		      <h3 class="box-title">{{ trans('crud.edit') }}</h3>
+		      <h3 class="box-title">{{ _(trans('crud.edit')) }}</h3>
 		    </div>
 		    <div class="box-body">
 		      <!-- load the view from the application if it exists, otherwise load the one in the package -->
@@ -39,9 +39,14 @@
 		      @endif
 		    </div><!-- /.box-body -->
 		    <div class="box-footer">
+				@if(isset($crud["redirect_self"]) && $crud["redirect_self"] == true )
+					<input type="radio" name="redirect_after_save" value="current_item_edit" id="edit_new_item" class="hidden">
+					<button type="submit" class="btn btn-success ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-save"></i> {{ _(trans('crud.save')) }}</span></button>
+				@else
+					<button type="submit" class="btn btn-success ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-save"></i> {{ _(trans('crud.save')) }}</span></button>
+					<a href="{{ url($crud['route']) }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label">{{ _(trans('crud.cancel')) }}</span></a>
+				@endif
 
-			  <button type="submit" class="btn btn-success ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-save"></i> {{ trans('crud.save') }}</span></button>
-		      <a href="{{ url($crud['route']) }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label">{{ trans('crud.cancel') }}</span></a>
 		    </div><!-- /.box-footer-->
 		  </div><!-- /.box -->
 		  {!! Form::close() !!}

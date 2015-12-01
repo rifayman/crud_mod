@@ -8,7 +8,7 @@
         <ol class="breadcrumb">
             <li><a href="{{ url('admin/dashboard') }}">Admin</a></li>
             <li><a href="{{ url($crud['route']) }}" class="text-capitalize">{{ $crud['entity_name_plural'] }}</a></li>
-            <li class="active">{{ trans('crud.add') }}</li>
+            <li class="active">{{ _(trans('crud.add')) }}</li>
         </ol>
     </section>
 @endsection
@@ -18,14 +18,14 @@
         <div class="col-md-8 col-md-offset-2">
             <!-- Default box -->
             @if (!(isset($crud['view_table_permission']) && !$crud['view_table_permission']))
-                <a href="{{ url($crud['route']) }}"><i class="fa fa-angle-double-left"></i> {{ trans('crud.back_to_all') }} <span class="text-lowercase">{{ $crud['entity_name_plural'] }}</span></a><br><br>
+                <a href="{{ url($crud['route']) }}"><i class="fa fa-angle-double-left"></i> {{ trans('crud.back_to_all') }}</a><br><br>
             @endif
 
             {!! Form::open(array('url' => $crud['route'], 'method' => 'post','files' => true )) !!}
             <div class="box">
 
                 <div class="box-header with-border">
-                    <h3 class="box-title">{{ trans('crud.add_a_new') }} {{ $crud['entity_name'] }}</h3>
+                    <h3 class="box-title">{{ trans('crud.add_a_new') }}: {{ _(ucfirst($crud['entity_name'])) }}</h3>
                 </div>
                 <div class="box-body">
                     <!-- load the view from the application if it exists, otherwise load the one in the package -->

@@ -13,12 +13,12 @@
     <section class="content-header">
         <h1>
             <span class="text-capitalize">{{ $crud['entity_name_plural'] }}</span>
-            <small>{{ trans('crud.all') }} <span class="text-lowercase">{{ $crud['entity_name_plural'] }}</span> {{ trans('crud.in_the_database') }}.</small>
+            <small>{{ trans('crud.all') }} <span class="text-lowercase">{{ $crud['entity_name_plural'] }}</span> {{ _(trans('crud.in_the_database')) }}.</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('admin/dashboard') }}">Admin</a></li>
             <li><a href="{{ url($crud['route']) }}" class="text-capitalize">{{ $crud['entity_name_plural'] }}</a></li>
-            <li class="active">{{ trans('crud.list') }}</li>
+            <li class="active">{{ _(trans('crud.list')) }}</li>
         </ol>
     </section>
     @endsection
@@ -28,17 +28,17 @@
     <div class="box">
         <div class="box-header with-border">
             @if (!(isset($crud['add_permission']) && !$crud['add_permission']))
-                <a href="{{ url($crud['route'].'/create') }}" class="btn btn-primary ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-plus"></i> {{ trans('crud.add') }} {{ $crud['entity_name'] }}</span></a>
+                <a href="{{ url($crud['route'].'/create') }}" class="btn btn-primary ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-plus"></i> {{ _(trans('crud.add')) }} {{ _($crud['entity_name']) }}</span></a>
             @endif
             @if ((isset($crud['reorder']) && $crud['reorder']))
                 @if (!(isset($crud['reorder_permission']) && !$crud['reorder_permission']))
-                    <a href="{{ url($crud['route'].'/reorder') }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-arrows"></i> {{ trans('crud.reorder') }} {{ $crud['entity_name_plural'] }}</span></a>
+                    <a href="{{ url($crud['route'].'/reorder') }}" class="btn btn-default ladda-button" data-style="zoom-in"><span class="ladda-label"><i class="fa fa-arrows"></i> {{ _(trans('crud.reorder')) }} {{ _($crud['entity_name_plural']) }}</span></a>
                 @endif
             @endif
 
             <div class="row col-md-3 pull-right no-margin no-padding">
                 <div class="col-xs-12 no-margin no-padding">
-                    <input type="text" id="search-table" class="form-control pull-right" placeholder="Buscar">
+                    <input type="text" id="search-table" class="form-control pull-right" placeholder=" {{ _(trans('crud.search')) }} ">
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
                     @endforeach
 
                     @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
-                        <th>{{ trans('crud.actions') }}</th>
+                        <th>{{ _(trans('crud.actions')) }}</th>
                     @endif
                 </tr>
                 </thead>
@@ -96,6 +96,11 @@
                                         ?></td>
                                 @else
                                     {{-- regular object attribute --}}
+                                    @if(trim($entry->$column['name']) == ""){
+                                        @if(isset($crud["is_translate"]) && $crud["is_translate"] == true){
+                                            <?php $entry->$column['name'] = $entry->translate()->$column['name']; ?>
+                                        @endif
+                                    @endif
                                     <td>{{ str_limit(strip_tags($entry->$column['name']), 80, "[...]") }}</td>
                                 @endif
 
@@ -105,10 +110,10 @@
                                 <td>
                                     {{-- <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-default"><i class="fa fa-eye"></i> {{ trans('crud.preview') }}</a> --}}
                                     @if (!(isset($crud['edit_permission']) && !$crud['edit_permission']))
-                                        <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit"></i> {{ trans('crud.edit') }}</a>
+                                        <a href="{{ Request::url().'/'.$entry->id }}/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit p-r-10"></i> {{ _(trans('crud.edit')) }}</a>
                                     @endif
                                     @if (!(isset($crud['delete_permission']) && !$crud['delete_permission']))
-                                        <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-danger" data-button-type="delete"><i class="fa fa-trash"></i> {{ trans('crud.delete') }}</a>
+                                        <a href="{{ Request::url().'/'.$entry->id }}" class="btn btn-xs btn-danger m-l-5" data-button-type="delete"><i class="fa fa-trash p-r-10"></i> {{ _(trans('crud.delete')) }}</a>
                                     @endif
                                 </td>
                             @endif
@@ -164,26 +169,26 @@
                 table = $('#crudTable');
                 var settings = {
                         "language": {
-                            "emptyTable":     "{{ trans('crud.emptyTable') }}",
-                            "info":           "{{ trans('crud.info') }}",
-                            "infoEmpty":      "{{ trans('crud.infoEmpty') }}",
-                            "infoFiltered":   "{{ trans('crud.infoFiltered') }}",
-                            "infoPostFix":    "{{ trans('crud.infoPostFix') }}",
-                            "thousands":      "{{ trans('crud.thousands') }}",
-                            "lengthMenu":     "{{ trans('crud.lengthMenu') }}",
-                            "loadingRecords": "{{ trans('crud.loadingRecords') }}",
-                            "processing":     "{{ trans('crud.processing') }}",
-                            "search":         "{{ trans('crud.search') }}",
-                            "zeroRecords":    "{{ trans('crud.zeroRecords') }}",
+                            "emptyTable":     "{{ _(trans('crud.emptyTable')) }}",
+                            "info":           "{{ _(trans('crud.info')) }}",
+                            "infoEmpty":      "{{ _(trans('crud.infoEmpty')) }}",
+                            "infoFiltered":   "{{ _(trans('crud.infoFiltered')) }}",
+                            "infoPostFix":    "{{ _(trans('crud.infoPostFix')) }}",
+                            "thousands":      "{{ _(trans('crud.thousands')) }}",
+                            "lengthMenu":     "{{ _(trans('crud.lengthMenu')) }}",
+                            "loadingRecords": "{{ _(trans('crud.loadingRecords')) }}",
+                            "processing":     "{{ _(trans('crud.processing')) }}",
+                            "search":         "{{ _(trans('crud.search')) }}",
+                            "zeroRecords":    "{{ _(trans('crud.zeroRecords')) }}",
                             "paginate": {
-                                "first":      "{{ trans('crud.paginate.first') }}",
-                                "last":       "{{ trans('crud.paginate.last') }}",
-                                "next":       "{{ trans('crud.paginate.next') }}",
-                                "previous":   "{{ trans('crud.paginate.previous') }}"
+                                "first":      "{{ _(trans('crud.paginate.first')) }}",
+                                "last":       "{{ _(trans('crud.paginate.last')) }}",
+                                "next":       "{{ _(trans('crud.paginate.next')) }}",
+                                "previous":   "{{ _(trans('crud.paginate.previous')) }}"
                             },
                             "aria": {
-                                "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
-                                "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
+                                "sortAscending":  "{{ _(trans('crud.aria.sortAscending')) }}",
+                                "sortDescending": "{{ _(trans('crud.aria.sortDescending')) }}"
                             }
                         },
                         "sDom": "<'table-responsive't><'row'<p i>>",
@@ -211,26 +216,26 @@
             @else
                 var table = $("#crudTable").DataTable({
                         "language": {
-                            "emptyTable":     "{{ trans('crud.emptyTable') }}",
-                            "info":           "{{ trans('crud.info') }}",
-                            "infoEmpty":      "{{ trans('crud.infoEmpty') }}",
-                            "infoFiltered":   "{{ trans('crud.infoFiltered') }}",
-                            "infoPostFix":    "{{ trans('crud.infoPostFix') }}",
-                            "thousands":      "{{ trans('crud.thousands') }}",
-                            "lengthMenu":     "{{ trans('crud.lengthMenu') }}",
-                            "loadingRecords": "{{ trans('crud.loadingRecords') }}",
-                            "processing":     "{{ trans('crud.processing') }}",
-                            "search":         "{{ trans('crud.search') }}",
-                            "zeroRecords":    "{{ trans('crud.zeroRecords') }}",
+                            "emptyTable":     "{{ _(trans('crud.emptyTable')) }}",
+                            "info":           "{{ _(trans('crud.info')) }}",
+                            "infoEmpty":      "{{ _(trans('crud.infoEmpty')) }}",
+                            "infoFiltered":   "{{ _(trans('crud.infoFiltered')) }}",
+                            "infoPostFix":    "{{ _(trans('crud.infoPostFix')) }}",
+                            "thousands":      "{{ _(trans('crud.thousands')) }}",
+                            "lengthMenu":     "{{ _(trans('crud.lengthMenu')) }}",
+                            "loadingRecords": "{{ _(trans('crud.loadingRecords')) }}",
+                            "processing":     "{{ _(trans('crud.processing')) }}",
+                            "search":         "{{ _(trans('crud.search')) }}",
+                            "zeroRecords":    "{{ _(trans('crud.zeroRecords')) }}",
                             "paginate": {
-                                "first":      "{{ trans('crud.paginate.first') }}",
-                                "last":       "{{ trans('crud.paginate.last') }}",
-                                "next":       "{{ trans('crud.paginate.next') }}",
-                                "previous":   "{{ trans('crud.paginate.previous') }}"
+                                "first":      "{{ _(trans('crud.paginate.first')) }}",
+                                "last":       "{{ _(trans('crud.paginate.last')) }}",
+                                "next":       "{{ _(trans('crud.paginate.next')) }}",
+                                "previous":   "{{ _(trans('crud.paginate.previous')) }}"
                             },
                             "aria": {
-                                "sortAscending":  "{{ trans('crud.aria.sortAscending') }}",
-                                "sortDescending": "{{ trans('crud.aria.sortDescending') }}"
+                                "sortAscending":  "{{ _(trans('crud.aria.sortAscending')) }}",
+                                "sortDescending": "{{ _(trans('crud.aria.sortDescending')) }}"
                             }
                         },
                         "sDom": "<'table-responsive't><'row'<p i>>",
@@ -305,12 +310,13 @@
                     var delete_url = $(this).attr('href');
 
 
-                    swal({  title: "{{ trans('crud.delete_confirm') }}",
-                            text: "{{ trans('crud.delete_info') }}",
+                    swal({  title: "<?php echo _(Lang::get('crud.delete_confirm')) ?>",
+                            text: "<?php echo _(Lang::get('crud.delete_info')) ?>",
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
-                            confirmButtonText: "Yes, delete it!",
+                            confirmButtonText: "<?php echo _(trans('crud.delete_confirm_yes_delete')) ?>",
+                            cancelButtonText: "{{ _(trans('crud.delete_cancel')) }}",
                             closeOnConfirm: true
                         }, function(isConfirm){
                             if (isConfirm) {
@@ -324,8 +330,8 @@
                                     success: function(result) {
                                         // Show an alert with the result
                                         new PNotify({
-                                            title: "{{ trans('crud.delete_confirmation_title') }}",
-                                            text: "{{ trans('crud.delete_confirmation_message') }}",
+                                            title: "{{ _(trans('crud.delete_confirmation_title')) }}",
+                                            text: "{{ _(trans('crud.delete_confirmation_message')) }}",
                                             type: "success"
                                         });
                                         // delete the row from the table
@@ -334,8 +340,8 @@
                                     error: function(result) {
                                         // Show an alert with the result
                                         new PNotify({
-                                            title: "{{ trans('crud.delete_confirmation_not_title') }}",
-                                            text: "{{ trans('crud.delete_confirmation_not_message') }}",
+                                            title: "{{ _(trans('crud.delete_confirmation_not_title')) }}",
+                                            text: "{{ _(trans('crud.delete_confirmation_not_message')) }}",
                                             type: "warning"
                                         });
                                     }
@@ -344,8 +350,8 @@
                             } else {
 
                                 new PNotify({
-                                    title: "{{ trans('crud.delete_confirmation_not_deleted_title') }}",
-                                    text: "{{ trans('crud.delete_confirmation_not_deleted_message') }}",
+                                    title: "{{ _(trans('crud.delete_confirmation_not_deleted_title')) }}",
+                                    text: "{{ _(trans('crud.delete_confirmation_not_deleted_message')) }}",
                                     type: "info"
                                 });
 
