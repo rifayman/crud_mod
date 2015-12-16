@@ -5,16 +5,15 @@
 
   {{-- splits by sections --}}
   @if(isset($field["section"]))
-      @if($y == 0)
-          <?php $section = $field["section"]; ?>
-      @else
-          @if($section != $field["section"])
-              <?php $section = $field["section"]; ?>
-              <hr />
-              <h4>{{ ucfirst($section) }}</h4>
-              @endif
-          @endif
-      @endif
+	  @if($y == 0)
+		  <?php $section = $field["section"]; ?>
+	  @else
+		  @if($section != $field["section"])
+			  <?php $section = $field["section"]; ?>
+			  <hr />
+			  <h4>{{ ucfirst($section) }}</h4>
+		  @endif
+	  @endif
   @endif
   <!-- load the view from the application if it exists, otherwise load the one in the package -->
   @if(view()->exists('crud::fields.'.$field['type']))
