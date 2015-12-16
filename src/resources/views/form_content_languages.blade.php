@@ -31,27 +31,42 @@
                 @foreach($crud["languages"] as $language)
                     <div class="tab-pane {{ ($x == 0) ? 'active' : '' }}" id="tab_{{$language["iso"]}}">
                         <?php $lng = $language["iso"]; ?>
-
+                        <?php $section = ""; ?>
+                        <?php $y = 0 ?>
                         @foreach ($crud['fields']['translate'][$lng] as $field)
+                            @if(is_array($field))
 
-                        @if(is_array($field))
-                                <!-- load the view from the application if it exists, otherwise load the one in the package -->
-                        @if(view()->exists('crud::fields.'.$field['type']))
-                            @include('crud::fields.'.$field['type'], ['field' => $field])
-                        @else
-                            @include('crud::fields.'.$field['type'], ['field' => $field])
-                        @endif
-                        @endif
+                                {{-- splits by sections --}}
+                                @if(isset($field["section"]))
+                                    @if($y == 0)
+                                        <?php $section = $field["section"]; ?>
+                                    @else
+                                        @if($section != $field["section"])
+                                            <?php $section = $field["section"]; ?>
+                                            <hr />
+                                            <h4>{{ ucfirst($section) }}</h4>
+                                        @endif
+                                    @endif
+                                @endif
+
+                                    {{--  load the view from the application if it exists, otherwise load the one in the package --}}
+                                    @if(view()->exists('crud::fields.'.$field['type']))
+                                        @include('crud::fields.'.$field['type'], ['field' => $field])
+                                    @else
+                                        @include('crud::fields.'.$field['type'], ['field' => $field])
+                                    @endif
+                                    <?php $y++; ?>
+                                    @endif
+                                @endforeach
+                            </div>
+                            <?php $x++; ?>
                         @endforeach
-                    </div>
-                    <?php $x++; ?>
-                @endforeach
-            </form>
+                    </form>
+                </div>
+            @endif
         </div>
-    @endif
-</div>
 
-{{-- For each form type, load its assets, if needed --}}
+        {{-- For each form type, load its assets, if needed --}}
 {{-- But only once per field type (no need to include the same css/js files multiple times on the same page) --}}
 <?php
 $loaded_form_types_css = array();

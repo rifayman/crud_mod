@@ -48,8 +48,6 @@
                 <thead>
                 <tr>
 
-
-                    {{-- Table columns --}}
                     @foreach ($crud['columns'] as $column)
                         <th>{{ $column['label'] }}</th>
                     @endforeach
@@ -57,6 +55,7 @@
                     @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
                         <th>{{ _(trans('crud.actions')) }}</th>
                     @endif
+
                 </tr>
                 </thead>
                 <tbody>
@@ -65,8 +64,6 @@
                 @else
                     @foreach ($entries as $k => $entry)
                         <tr data-entry-id="{{ $entry->id }}">
-
-
 
                             @foreach ($crud['columns'] as $column)
                                 @if (isset($column['type']) && $column['type']=='select_multiple')
@@ -95,9 +92,8 @@
                                         echo $entry->{$column['function_name']}();
                                         ?></td>
                                 @else
-                                    {{-- regular object attribute --}}
-                                    @if(trim($entry->$column['name']) == ""){
-                                        @if(isset($crud["is_translate"]) && $crud["is_translate"] == true){
+                                    @if(trim($entry->$column['name']) == "")
+                                        @if(isset($crud["is_translate"]) && $crud["is_translate"] == true)
                                             <?php $entry->$column['name'] = $entry->translate()->$column['name']; ?>
                                         @endif
                                     @endif
@@ -123,19 +119,6 @@
 
 
                 </tbody>
-                {{--<tfoot>--}}
-                {{--<tr>--}}
-
-                    {{-- Table columns --}}
-                    {{--@foreach ($crud['columns'] as $column)--}}
-                        {{--<th>{{ $column['label'] }}</th>--}}
-                    {{--@endforeach--}}
-
-                    {{--@if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )--}}
-                        {{--<th>{{ trans('crud.actions') }}</th>--}}
-                    {{--@endif--}}
-                {{--</tr>--}}
-                {{--</tfoot>--}}
             </table>
 
         </div><!-- /.box-body -->

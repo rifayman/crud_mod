@@ -637,7 +637,7 @@ class CrudController extends BaseController {
 
 
 	/**
-	 * Allow Dick users to easily replace the default views by placing a view with the same name in
+	 * Allow replace the default views by placing a view with the same name in
 	 * /resources/views/vendor/dick/crud/. If no such view exists, load the one from the package.
 	 *
 	 * @param  view  	$first_view - the first view to try, ex: vendor.dick.crud.edit
@@ -739,7 +739,7 @@ class CrudController extends BaseController {
                             $remove_fake_field = array_pull($request["translate"][$language["iso"]], $field['name']);
 
                             if(!in_array($field['store_in'], $fake_field_columns_to_encode, true)){
-                                array_push($fake_field_columns_to_encode."_trans", $field['store_in']);
+                                array_push($fake_field_columns_to_encode, $field['store_in']);
 
                             }
                         }
@@ -749,19 +749,23 @@ class CrudController extends BaseController {
 
                             $remove_fake_field = array_pull($request, $field['name']);
                             if(!in_array('extras', $fake_field_columns_to_encode, true)){
-                                array_push($fake_field_columns_to_encode."_trans", 'extras');
+                                array_push($fake_field_columns_to_encode, 'extras');
                             }
                         }
                     }
                 }
 
                 if (count($fake_field_columns_to_encode)) {
-                    foreach ($fake_field_columns_to_encode as $key => $value) {
+                    foreach ($fake_field_columns_to_encode as $key => $value){
                         if(isset($request["translate"][$language["iso"]][$value])){
                             $request["translate"][$language["iso"]][$value] = json_encode($request["translate"][$language["iso"]][$value]);
                         }
                     }
+					$request["translate"][$language["iso"]][$value."_trans"] = $request["translate"][$language["iso"]][$value];
+					unset($request["translate"][$language["iso"]][$value]);
                 }
+
+
             }
 
         } else {
@@ -803,15 +807,16 @@ class CrudController extends BaseController {
                     }
                 }
             }
+
+			if (count($fake_field_columns_to_encode)) {
+				foreach ($fake_field_columns_to_encode as $key => $value) {
+					$request[$value] = json_encode($request[$value]);
+				}
+			}
         }
 
-
 		// json_encode all fake_value columns in the database, so they can be properly stored and interpreted
-		if (count($fake_field_columns_to_encode)) {
-			foreach ($fake_field_columns_to_encode as $key => $value) {
-				$request[$value] = json_encode($request[$value]);
-			}
-		}
+
 
 		// if there are no fake fields defined, this will just return the original Request in full
 		// since no modifications or additions have been made to $request
