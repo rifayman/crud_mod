@@ -1292,7 +1292,8 @@ class CrudController extends BaseController {
         foreach ($fields as $k => $field) {
             if (isset( $field['type'] ) && ( $field['type'] == 'image' || $field['type'] == 'upload' )) {
                 if (Storage::disk('upload')->exists($item[$field["name"]])) {
-					if (Storage::disk('upload')->isFile($item[$field["name"]])) {
+					$mime = Storage::disk('upload')->getMetaData($item[$field["name"]]); //For if is a directory. Only for files
+					if($mime["type"] == "file"){
 						Storage::disk('upload')->delete($item[$field["name"]]);
 					}
                 }
