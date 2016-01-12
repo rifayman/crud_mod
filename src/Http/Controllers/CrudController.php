@@ -1292,7 +1292,9 @@ class CrudController extends BaseController {
         foreach ($fields as $k => $field) {
             if (isset( $field['type'] ) && ( $field['type'] == 'image' || $field['type'] == 'upload' )) {
                 if (Storage::disk('upload')->exists($item[$field["name"]])) {
-                    Storage::disk('upload')->delete($item[$field["name"]]);
+					if (Storage::disk('upload')->isFile($item[$field["name"]])) {
+						Storage::disk('upload')->delete($item[$field["name"]]);
+					}
                 }
             }
         }
