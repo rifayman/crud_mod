@@ -34,7 +34,9 @@ class CrudController extends BaseController {
 						"reorder_permission" => true,
 						"reorder_max_level" => 3,
 						"details_row" => false,
-						"is_translate" => false
+						"is_translate" => false,
+						"locale_id" => "iso",
+                        "locale_column" => "locale"
 						);
 
 	public function __construct()
@@ -50,6 +52,12 @@ class CrudController extends BaseController {
         if(isset($this->crud['is_translate']) && $this->crud['is_translate'] == true ){
             $locales = new Locale;
             $this->crud['languages'] = $locales->getAvailables()->toArray();
+        }
+
+        if(!isset($this->crud['locale_id'])){
+            $this->crud['locale_id'] = "iso";
+            $this->crud['locale_column'] = "locale";
+
         }
 
         $this->data['crud'] = $this->crud;
@@ -71,8 +79,6 @@ class CrudController extends BaseController {
 		if (isset($this->crud['view_table_permission']) && !$this->crud['view_table_permission']) {
 			abort(403, 'Not allowed.');
 		}
-
-
 
 		// get all results for that entity
 		$model = $this->crud['model'];
@@ -111,8 +117,6 @@ class CrudController extends BaseController {
 		if (isset($this->crud['add_permission']) && !$this->crud['add_permission']) {
 			abort(403, 'Not allowed.');
 		}
-
-
 
 		// get the fields you need to show
 
@@ -286,8 +290,9 @@ class CrudController extends BaseController {
 				$table = new $model;
 				$table = $table->getTable();
 
-                $itemInfo = array($table."_id"=>$item->id, "locale"=> $language["iso"]);
-                $translatedFIelds = array_merge($itemInfo,$translated_items[$language["iso"]]);
+
+                $itemInfo = array($table."_id"=>$item->id, $this->crud["locale_column"]=> $language[$this->crud["locale_id"]]);
+                $translatedFIelds = array_merge($itemInfo,$translated_items[$language[$this->crud["locale_id"]]]);
                 $modelTranslatable::create($translatedFIelds);
             }
         }
@@ -351,8 +356,6 @@ class CrudController extends BaseController {
 
 		$this->data['crud'] = $this->crud;
 
-
-
 		// load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
 		return $this->firstViewThatExists('vendor.dick.crud.edit', 'crud::edit', $this->data);
 	}
@@ -381,11 +384,16 @@ class CrudController extends BaseController {
 
 		$translated_items = false;
         if(isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true){
+
+
             $translated_items = $values_to_store["translate"];
 
 
             foreach($translated_items as $k => $langItems){
-
+                if($this->crud["locale_id"] != "iso"){
+                    $locale = Locale::whereIso($k)->first();
+                    $translated_items[$locale->id] = $translated_items[$k];
+                }
                 if (isset($langItems['extras'])) {
                     $translated_items[$k]['extras_trans'] = $langItems['extras'];
                     unset($translated_items[$k]['extras']);
@@ -398,24 +406,39 @@ class CrudController extends BaseController {
         $item = $model::find(\Request::input('id'))
                         ->update($values_to_store);
 
+
+
         if($translated_items){
 
             $modelTranslatable = $this->crud["model_translate"];
 
             foreach($this->data['crud']['languages'] as $language){
+
 				$table = new $model;
 				$table = $table->getTable();
 				$exists = $modelTranslatable::where($table."_id", \Request::input('id'))
-											->where("locale", $language["iso"])->first();
+											->where($this->crud["locale_column"], $language[$this->crud["locale_id"]])->first();
+
 				if($exists){
 					$modelTranslatable::where($table."_id", \Request::input('id'))
-							->where("locale", $language["iso"])
-							->update($translated_items[$language["iso"]]);
+							->where($this->crud["locale_column"], $language[$this->crud["locale_id"]])
+							->update($translated_items[$language[$this->crud["locale_id"]]]);
+
 				} else {
 
-					$itemInfo = array($table."_id" => \Request::input('id'), "locale"=> $language["iso"]);
-					$translatedFIelds = array_merge($itemInfo,$translated_items[$language["iso"]]);
+
+
+					$itemInfo = array($table."_id" => \Request::input('id'), $this->crud["locale_column"] => $language[$this->crud["locale_id"]]);
+
+
+
+
+					$translatedFIelds = array_merge($itemInfo,$translated_items[$language[$this->crud["locale_id"]]]);
+
+
+
 					$modelTranslatable::create($translatedFIelds);
+
 				}
 
             }
@@ -993,6 +1016,7 @@ class CrudController extends BaseController {
 			}
 		}
 
+
 		// if the fields are defined as a string, transform it to a proper array
 		if (!is_array($this->crud['fields']))
 		{
@@ -1081,8 +1105,6 @@ class CrudController extends BaseController {
 				}
 
 
-
-
                 foreach($fields["translate"] as $lang => $fieldArray){
 
                     if(is_array($fieldArray)){
@@ -1092,6 +1114,7 @@ class CrudController extends BaseController {
                                     if(isset($field["fake"]) && $field["fake"] == true){
                                         $fields["translate"][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field["name"]);
                                     } else {
+                                        \Log::info(utf8_encode($entry->translate($lang)->$field["name"]));
                                         $fields["translate"][$lang][$e]['value'] = $entry->translate($lang)->$field["name"];
                                     }
                                 }
@@ -1102,7 +1125,6 @@ class CrudController extends BaseController {
                     }
 
                 }
-
 				$this->crud['fields'] = $fields;
 
 

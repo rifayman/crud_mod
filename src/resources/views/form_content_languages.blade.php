@@ -31,11 +31,12 @@
                 @foreach($crud["languages"] as $language)
                     <div class="tab-pane {{ ($x == 0) ? 'active' : '' }}" id="tab_{{$language["iso"]}}">
                         <?php $lng = $language["iso"]; ?>
+
                         <?php $section = ""; ?>
                         <?php $y = 0 ?>
                         @foreach ($crud['fields']['translate'][$lng] as $field)
                             @if(is_array($field))
-
+<!--                                --><?php //dd($crud['fields']['translate']); ?>
                                 {{-- splits by sections --}}
                                 @if(isset($field["section"]))
                                     @if($y == 0)
