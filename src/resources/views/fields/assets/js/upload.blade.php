@@ -6,7 +6,6 @@
            var reader = new FileReader();
 
            reader.onload = function (e) {
-               console.log(reader);
                $(input).parent().find('.output').attr('src', e.target.result);
            }
 

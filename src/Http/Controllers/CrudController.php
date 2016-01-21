@@ -4,6 +4,7 @@ use Illuminate\Foundation\Bus\DispatchesCommands;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -1114,7 +1115,6 @@ class CrudController extends BaseController {
                                     if(isset($field["fake"]) && $field["fake"] == true){
                                         $fields["translate"][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field["name"]);
                                     } else {
-                                        \Log::info(utf8_encode($entry->translate($lang)->$field["name"]));
                                         $fields["translate"][$lang][$e]['value'] = $entry->translate($lang)->$field["name"];
                                     }
                                 }
@@ -1224,13 +1224,17 @@ class CrudController extends BaseController {
         if(isset($fields["normal"])){
             $fields = $fields["normal"];
         }
-        foreach ($fields as $k => $field) {
 
-            if (isset($field['type']) && ($field['type'] == 'image' || $field['type'] == 'upload')) {
+
+
+		foreach ($fields as $k => $field) {
+
+            if (isset($field['type']) && ($field['type'] == 'image' || $field['type'] == 'upload' || $field['type'] == 'browse')) {
 
                 $filesToUpload = \Request::file($field['name']);
-
+				Log::info($fields);
                 $fileCount = count($filesToUpload);
+
                 if($fileCount != 0){
                     if($fileCount > 1){
 
@@ -1253,9 +1257,9 @@ class CrudController extends BaseController {
                         $name = filter_var($name, FILTER_SANITIZE_STRING);
                         $name = $this->sanitize($name).".".$filesToUpload->getClientOriginalExtension();
                         $folder = $this->getUploadFolder();
-
                         $uploadNames = $this->uploadFile($folder, $filesToUpload, $name, true, $field);
                     }
+
                     $values_to_store[$field['name']] = $uploadNames;
                 }
 
@@ -1289,19 +1293,27 @@ class CrudController extends BaseController {
 
 
     private function uploadFile($folder, $file, $name, $checkExistsFile = false, $field = null ){
-
         if($checkExistsFile && isset($field["value"])){
             if (Storage::disk('upload')->exists($field["value"])) {
-                Storage::disk('upload')->delete($field["value"]);
+
+				$file = str_replace("ficha_tecnica/","", $field["value"]);
+				$mime = Storage::disk('upload')->getMetaData($field["value"]); //For if is a directory. Only for files
+				if($mime["type"] == "file"){
+
+					Storage::disk('upload')->delete($field["value"]);
+				}
             }
         }
-
 
         if (!Storage::disk('upload')->exists($folder)) {
             Storage::disk('upload')->makeDirectory($folder, 0777);
         }
-        Storage::disk('upload')->put($folder . '/' . $name, File::get($file));
+		if(!is_string($file)){
+			Storage::disk('upload')->put($folder . '/' . $name, File::get($file));
+		}
+
         return $folder . '/' . $name;
+
     }
 
     private function checkHasImagesToDelete($item){
@@ -1311,6 +1323,7 @@ class CrudController extends BaseController {
         if(isset($fields["normal"])){
             $fields = $fields["normal"];
         }
+
         foreach ($fields as $k => $field) {
             if (isset( $field['type'] ) && ( $field['type'] == 'image' || $field['type'] == 'upload' )) {
                 if (Storage::disk('upload')->exists($item[$field["name"]])) {
