@@ -149,12 +149,13 @@ class CrudController extends BaseController {
         //Check if has a pivot column
         $pivots = array_pluck($this->crud['columns'], ['pivot']);
         $isPivot = array_search("true", $pivots);
+
         if($isPivot != false){
 
             $pivotField = $this->crud['columns'][$isPivot];
-            //dd($pivotField);
+//            dd($pivotField);
             $data = $model::select('*')->get();
-
+			//dd($columns);
         } else {
             $data = $model::select('*')->get();
         }
@@ -198,7 +199,18 @@ class CrudController extends BaseController {
                     ->editColumn($column['name'], function($columnInfo) use ($column) {
                         return "<img src='".asset('uploads/'.$columnInfo->$column['name'])."' width='50%' />";
                     });
-            } else {
+			} elseif (isset($column['type']) && $column['pivot']== true){
+				$datatable
+					->editColumn($column['name'], function($columnInfo) use ($column) {
+//						dd($columnInfo);
+//						dd($column); //["model"]
+						$pivotModel = $this->crud['model'];
+						$dataPivot = $column["model"]::find($columnInfo[$column["entity"]]);
+						if($dataPivot){
+							return $dataPivot->$column["attribute"];
+						}
+					});
+			} else {
                 if(array_search("content", $columns)){
                     $datatable
                         ->editColumn($column['name'], function($columnInfo) use ($column) {
@@ -209,7 +221,9 @@ class CrudController extends BaseController {
                         ->editColumn($column['name'], function($columnInfo) use ($column) {
                             if(trim($columnInfo->$column['name']) == ""){
                                 if(isset($this->crud["is_translate"]) && $this->crud["is_translate"] == true){
-                                    $columnInfo->$column['name'] = $columnInfo->translate()->$column['name'];
+									if($columnInfo->translate()){
+										$columnInfo->$column['name'] = $columnInfo->translate()->$column['name'];
+									}
                                 }
                             }
                             return str_limit(strip_tags($columnInfo->$column['name']), 80, "[...]");
