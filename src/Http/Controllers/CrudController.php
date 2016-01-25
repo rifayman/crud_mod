@@ -1308,6 +1308,11 @@ class CrudController extends BaseController {
         if (!Storage::disk('upload')->exists($folder)) {
             Storage::disk('upload')->makeDirectory($folder, 0777);
         }
+
+		if(is_string($file)){
+			$file = \Request::file($field['name']);
+		}
+
 		if(!is_string($file)){
 			Storage::disk('upload')->put($folder . '/' . $name, File::get($file));
 		}
