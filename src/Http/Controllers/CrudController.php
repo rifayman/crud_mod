@@ -199,7 +199,7 @@ class CrudController extends BaseController {
                     ->editColumn($column['name'], function($columnInfo) use ($column) {
                         return "<img src='".asset('uploads/'.$columnInfo->$column['name'])."' width='50%' />";
                     });
-			} elseif (isset($column['type']) && $column['pivot']== true){
+			} elseif (isset($column['type']) && isset($column['pivot']) && $column['pivot']== true){
 				$datatable
 					->editColumn($column['name'], function($columnInfo) use ($column) {
 //						dd($columnInfo);
