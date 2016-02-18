@@ -19,13 +19,15 @@ $ composer require infinety-es/crud/
 
 Add this under service providers array on config/app.php
 ```php
-Vinkla\Hashids\HashidsServiceProvider::class
+'Jenssegers\Date\DateServiceProvider',
 ```
+
 
 Add this to your config/app.php, under "aliases":
 
 ```php
 'CRUD' => 'Infinety\CRUD\CrudServiceProvider',
+'Date' => Jenssegers\Date\Date::class,
 ```
 
 ## Usage
@@ -40,7 +42,30 @@ In short:
 
 4. **(optional)** Define your validation rules in a Request files.
 
+## Data Types
 
+### Images:
+
+On column array add this to tell the crud is an image:
+
+ ```php
+  'type'  => 'image'
+ ```
+
+### Date
+
+On column array add this to tell the crud is an date:
+
+ ```php
+  'type' => 'date',
+  'language' => 'es', //Language set
+  'format'   => 'd-m-Y' //Custom date format
+ ```
+You can format a Date object like the DateTime object (http://www.php.net/manual/en/function.date.php):
+
+## ToDO
+
+Add a better documentation
 
 ## Change log
 

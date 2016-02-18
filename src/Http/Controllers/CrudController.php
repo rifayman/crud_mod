@@ -14,6 +14,7 @@ use Storage;
 use starter\Http\Locale;
 use Prologue\Alerts\Facades\Alert;
 use Datatables;
+use Jenssegers\Date\Date;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use Infinety\CRUD\Http\Requests\CrudRequest as StoreRequest;
 use Infinety\CRUD\Http\Requests\CrudRequest as UpdateRequest;
@@ -163,7 +164,6 @@ class CrudController extends BaseController {
         $datatable = Datatables::of($data);
 
         foreach($columns as $column){
-
             if (isset($column['type']) && $column['type']=='select_multiple'){
                 $datatable
                     ->addColumn($column['name'], '')
@@ -209,6 +209,21 @@ class CrudController extends BaseController {
 						if($dataPivot){
 							return $dataPivot->$column["attribute"];
 						}
+					});
+			} elseif (isset($column['type']) && $column['type']=='date'){
+				$datatable
+					->addColumn($column['name'], '')
+					->editColumn($column['name'], function($columnInfo) use ($column) {
+						if($columnInfo->$column['name'] != null){
+							$locale = (isset($column["language"])) ? $column["language"] : 'en';
+							$format = (isset($column["format"])) ? $column["format"] : 'Y-m-d';
+							Date::setLocale($locale);
+							$date = Date::parse($columnInfo->$column['name']);
+							return $date->format($format);
+						}
+						return "";
+
+
 					});
 			} else {
                 if(array_search("content", $columns)){
