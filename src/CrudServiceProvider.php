@@ -1,7 +1,9 @@
-<?php namespace Infinety\CRUD;
+<?php
 
-use Illuminate\Support\ServiceProvider;
+namespace Infinety\CRUD;
+
 use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 use Route;
 
 class CrudServiceProvider extends ServiceProvider
@@ -12,6 +14,7 @@ class CrudServiceProvider extends ServiceProvider
      * @var bool
      */
     protected $defer = false;
+
     /**
      * Perform post-registration booting of services.
      *
@@ -36,20 +39,21 @@ class CrudServiceProvider extends ServiceProvider
         //     __DIR__.'/config/config.php', 'CRUD'
         // );
     }
+
     /**
      * Define the routes for the application.
      *
-     * @param  \Illuminate\Routing\Router  $router
+     * @param \Illuminate\Routing\Router $router
+     *
      * @return void
      */
     public function setupRoutes(Router $router)
     {
-
-         $router->group(['namespace' => 'Infinety\CRUD\Http\Controllers'], function($router)
-        {
+        $router->group(['namespace' => 'Infinety\CRUD\Http\Controllers'], function ($router) {
             require __DIR__.'/Http/routes.php';
         });
     }
+
     /**
      * Register any package services.
      *
@@ -67,7 +71,7 @@ class CrudServiceProvider extends ServiceProvider
 
     private function registerCRUD()
     {
-        $this->app->bind('CRUD',function($app){
+        $this->app->bind('CRUD', function ($app) {
             return new CRUD($app);
         });
     }
@@ -85,7 +89,5 @@ class CrudServiceProvider extends ServiceProvider
         Route::get($name.'/getData', $controller.'@getData');
 
         Route::resource($name, $controller, $options);
-
     }
-
 }
