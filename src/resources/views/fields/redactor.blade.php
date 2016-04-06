@@ -7,6 +7,6 @@
     	@foreach ($field as $attribute => $value)
     		{{ $attribute }}="{{ $value }}"
     	@endforeach
-
-    	>{{ (isset($field['value']))?$field['value']:'' }}</textarea>
+		id="redactor-{{ $language["iso"] }}"
+    	>{{ (isset($field['value'])) ? $field['value'] : '' }}</textarea>
   </div>

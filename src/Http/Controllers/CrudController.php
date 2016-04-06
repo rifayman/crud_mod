@@ -293,11 +293,11 @@ class CrudController extends BaseController
 
             unset($values_to_store['translate']);
         }
-
         $item = $model::create($values_to_store);
 
         if ($translated_items) {
             $item->translations()->delete();
+
             $modelTranslatable = $this->crud['model_translate'];
 
             foreach ($this->data['crud']['languages'] as $language) {
@@ -305,7 +305,10 @@ class CrudController extends BaseController
                 $table = $table->getTable();
 
                 $itemInfo = [$table.'_id' => $item->id, $this->crud['locale_column'] => $language[$this->crud['locale_id']]];
+
                 $translatedFIelds = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
+
+
                 $modelTranslatable::create($translatedFIelds);
             }
         }
@@ -503,9 +506,9 @@ class CrudController extends BaseController
     public function reorder($lang = false)
     {
         // if reorder_table_permission is false, abort
-        if (isset($this->crud['reorder_permission']) && ! $this->crud['reorder_permission']) {
-            abort(403, 'Not allowed.');
-        }
+//        if (isset($this->crud['reorder_permission']) && ! $this->crud['reorder_permission']) {
+//            abort(403, 'Not allowed.');
+//        }
 
         if ($lang == false) {
             $lang = \Lang::locale();
@@ -536,9 +539,9 @@ class CrudController extends BaseController
     public function saveReorder()
     {
         // if reorder_table_permission is false, abort
-        if (isset($this->crud['reorder_permission']) && ! $this->crud['reorder_permission']) {
-            abort(403, 'Not allowed.');
-        }
+//        if (isset($this->crud['reorder_permission']) && ! $this->crud['reorder_permission']) {
+//            abort(403, 'Not allowed.');
+//        }
 
         $model = $this->crud['model'];
         $count = 0;
@@ -672,6 +675,7 @@ class CrudController extends BaseController
         // go through each defined field
 
         if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
+
             if (isset($this->crud['fields']['normal'])) {
                 foreach ($this->crud['fields']['normal'] as $k => $field) {
 
@@ -680,17 +684,25 @@ class CrudController extends BaseController
                         // add it to the request in its appropriate variable - the one defined, if defined
 
                         if (isset($field['store_in'])) {
+
+
                             if ($field['type'] == 'image' || $field['type'] == 'upload') {
                                 $file = \Request::file($field['name']);
                                 $request[$field['store_in']][$field['name']] = $file->getClientOriginalName();
                             } else {
+
+
                                 $request[$field['store_in']][$field['name']] = $request[$field['name']];
                             }
 
+
                             $remove_fake_field = array_pull($request, $field['name']);
+
                             if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, $field['store_in']);
                             }
+
+
                         } else {
                             //otherwise in the one defined in the $crud variable
 
@@ -701,15 +713,22 @@ class CrudController extends BaseController
                                 $request['extras'][$field['name']] = $request[$field['name']];
                             }
                             $remove_fake_field = array_pull($request, $field['name']);
+
                             if (! in_array('extras', $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, 'extras');
                             }
                         }
                     }
                 }
+                // Convert to json data fake columns
+                if (count($fake_field_columns_to_encode)) {
+                    foreach ($fake_field_columns_to_encode as $key => $value) {
+                        $request[$value] = json_encode($request[$value]);
+                    }
+                }
             }
 
-            // Bucle for translated strings
+            // Loop for translated strings
             foreach ($this->data['crud']['languages'] as $language) {
                 foreach ($this->crud['fields']['translate'][$language['iso']] as $k => $field) {
 
@@ -744,8 +763,11 @@ class CrudController extends BaseController
                             $request['translate'][$language['iso']][$value] = json_encode($request['translate'][$language['iso']][$value]);
                         }
                     }
-                    $request['translate'][$language['iso']][$value.'_trans'] = $request['translate'][$language['iso']][$value];
-                    unset($request['translate'][$language['iso']][$value]);
+                    if(isset($request['translate'][$language['iso']][$value.'_trans']) && isset($request['translate'][$language['iso']][$value]) ){
+                        $request['translate'][$language['iso']][$value.'_trans'] = $request['translate'][$language['iso']][$value];
+                        unset($request['translate'][$language['iso']][$value]);
+                    }
+
                 }
             }
         } else {
@@ -784,7 +806,6 @@ class CrudController extends BaseController
                     }
                 }
             }
-
             if (count($fake_field_columns_to_encode)) {
                 foreach ($fake_field_columns_to_encode as $key => $value) {
                     $request[$value] = json_encode($request[$value]);
@@ -1115,7 +1136,7 @@ class CrudController extends BaseController
         foreach ($fields as $k => $field) {
             if (isset($field['type']) && ($field['type'] == 'image' || $field['type'] == 'upload' || $field['type'] == 'browse')) {
                 $filesToUpload = \Request::file($field['name']);
-                Log::info($fields);
+
                 $fileCount = count($filesToUpload);
 
                 if ($fileCount != 0) {
@@ -1173,7 +1194,7 @@ class CrudController extends BaseController
     {
         if ($checkExistsFile && isset($field['value'])) {
             if (Storage::disk('upload')->exists($field['value'])) {
-                $file = str_replace('ficha_tecnica/', '', $field['value']);
+//                $file = str_replace('ficha_tecnica/', '', $field['value']);
                 $mime = Storage::disk('upload')->getMetaData($field['value']); //For if is a directory. Only for files
                 if ($mime['type'] == 'file') {
                     Storage::disk('upload')->delete($field['value']);

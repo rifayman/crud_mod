@@ -3,7 +3,11 @@
 
 
         @if(isset($field["value"]))
-                <img class="output" src="{{ asset('uploads/'.$field["value"])  }}" width="20%" height="5%"/>
+                @if(isset($crud["prepend-url-upload"]))
+                        <img class="output" src="{{ url($crud["prepend-url-upload"].'uploads/'.$field["value"])  }}" width="20%" height="5%"/>
+                @else
+                        <img class="output" src="{{ url('uploads/'.$field["value"])  }}" width="20%" height="5%"/>
+                @endif
         @else
                 <img class="output" src="" width="20%" height="5%"/>
         @endif

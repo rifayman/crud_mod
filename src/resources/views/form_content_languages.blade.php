@@ -52,9 +52,9 @@
 
                                     {{--  load the view from the application if it exists, otherwise load the one in the package --}}
                                     @if(view()->exists('crud::fields.'.$field['type']))
-                                        @include('crud::fields.'.$field['type'], ['field' => $field])
+                                        @include('crud::fields.'.$field['type'], ['field' => $field, 'language' => $language])
                                     @else
-                                        @include('crud::fields.'.$field['type'], ['field' => $field])
+                                        @include('crud::fields.'.$field['type'], ['field' => $field, 'language' => $language])
                                     @endif
                                     <?php $y++; ?>
                                     @endif
@@ -90,22 +90,22 @@ $loaded_form_types_js = array();
             @endif
         @endforeach
     @endif
-
-    @foreach($crud["languages"] as $language)
-        <?php $lng = $language["iso"]; ?>
-        @foreach ($crud['fields']["translate"][$lng] as $field )
-            @if(!isset($loaded_form_types_css[$field['type']]) || $loaded_form_types_css[$field['type']]==false)
-                @if (View::exists('crud::fields.assets.css.'.$field['type'], ['field' => $field]))
-                    @include('crud::fields.assets.css.'.$field['type'], ['field' => $field])
+    @if(isset($crud['fields']['translate']))
+        @foreach($crud["languages"] as $language)
+            <?php $lng = $language["iso"]; ?>
+            @foreach ($crud['fields']["translate"][$lng] as $field )
+                @if(!isset($loaded_form_types_css[$field['type']]) || $loaded_form_types_css[$field['type']]==false)
+                    @if (View::exists('crud::fields.assets.css.'.$field['type'], ['field' => $field]))
+                        @include('crud::fields.assets.css.'.$field['type'], ['field' => $field])
+                        <?php $loaded_form_types_css[$field['type']] = true; ?>
+                    @elseif (View::exists('crud::fields.assets.css.'.$field['type'], ['field' => $field]))
+                         @include('crud::fields.assets.css.'.$field['type'], ['field' => $field])
                     <?php $loaded_form_types_css[$field['type']] = true; ?>
-                @elseif (View::exists('crud::fields.assets.css.'.$field['type'], ['field' => $field]))
-                     @include('crud::fields.assets.css.'.$field['type'], ['field' => $field])
-                <?php $loaded_form_types_css[$field['type']] = true; ?>
+                    @endif
                 @endif
-            @endif
+            @endforeach
         @endforeach
-    @endforeach
-
+    @endif
 @endsection
 
 @section('custom_js')
@@ -126,23 +126,24 @@ $loaded_form_types_js = array();
             @endif
         @endforeach
     @endif
-    @foreach($crud["languages"] as $language)
-        <?php $lng = $language["iso"]; ?>
-        @foreach ($crud['fields']["translate"][$lng] as $field )
-            @if(is_array($field))
-                @if(!isset($loaded_form_types_js[$field['type']]) || $loaded_form_types_js[$field['type']]==false)
-                    @if (View::exists('crud::fields.assets.js.'.$field['type'], ['field' => $field]))
-                        @include('crud::fields.assets.js.'.$field['type'], ['field' => $field])
-                        <?php $loaded_form_types_js[$field['type']] = true; ?>
-                    @elseif (View::exists('crud::fields.assets.js.'.$field['type'], ['field' => $field]))
-
-                        @include('crud::fields.assets.js.'.$field['type'], ['field' => $field])
-                        <?php $loaded_form_types_js[$field['type']] = true; ?>
+    @if(isset($crud['fields']['translate']))
+        @foreach($crud["languages"] as $language)
+            <?php $lng = $language["iso"]; ?>
+            @foreach ($crud['fields']["translate"][$lng] as $field )
+                @if(is_array($field))
+                    @if(!isset($loaded_form_types_js[$field['type']]) || $loaded_form_types_js[$field['type']]==false)
+                        @if (View::exists('crud::fields.assets.js.'.$field['type'], ['field' => $field]))
+                            @include('crud::fields.assets.js.'.$field['type'], ['field' => $field, 'language' => $crud["languages"]])
+                            <?php $loaded_form_types_js[$field['type']] = true; ?>
+                        @elseif (View::exists('crud::fields.assets.js.'.$field['type'], ['field' => $field, 'language' => $crud["languages"]]))
+                            @include('crud::fields.assets.js.'.$field['type'], ['field' => $field, 'language' => $crud["languages"]])
+                            <?php $loaded_form_types_js[$field['type']] = true; ?>
+                        @endif
                     @endif
                 @endif
-            @endif
+            @endforeach
         @endforeach
-    @endforeach
+    @endif
     @if(isset($crud['fields']['translate']))
         <script type="application/javascript">
                     @foreach($crud["languages"] as $language)
