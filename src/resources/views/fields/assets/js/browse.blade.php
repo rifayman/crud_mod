@@ -1,43 +1,29 @@
-<!-- include browse server js -->
-<script src="{{ asset('admin_theme/assets/plugins/colorbox/jquery.colorbox-min.js') }}"></script>
-<script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+<script type="application/javascript">
 
-//    $(document).on('click', '.file_click', function(e){
-//        e.preventDefault();
-//        var data = $(this).data('inputid');
-//        console.log("#"+data);
-//        $("#"+data).trigger('click');
-//
-//
-//    });
+    jQuery(document).ready(function($) {
+        uploadFile = function(dat){
+            $.fancybox({
+                width		: 950,
+                height	    : 500,
+                type		: 'iframe',
+                href        : "http://demo.starter.on/admin/filemanager/dialog?type=featured",
+                fitToView   : false,
+                autoScale   : false,
+                autoSize    : false
+            });
+        };
 
 
-    function performClick(elemId) {
-        var elem = document.getElementById(elemId);
-        console.log(elem);
-        if(elem && document.createEvent) {
-            var evt = document.createEvent("MouseEvents");
-            evt.initEvent("click", true, false);
-            elem.dispatchEvent(evt);
-        }
-    }
-
-    function readURL(input) {
-
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                $(input).parent().find('.output').attr('src', e.target.result);
+        OnMessage = function(data){
+            console.log(data);
+            var patt = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
+            if(patt.test(data.thumb)){
+                $("#{{ $field['name'] }}-text").val(data.thumb);
+                $("#{{ $field['name'] }}").attr({ 'src' : data.thumb});
+                $.fancybox.close();
             }
-
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    $('.upload-browser').change(function(){
-        var to = $(this).data('to');
-        $("#"+to).val($(this).val());
+        };
     });
 
 </script>
