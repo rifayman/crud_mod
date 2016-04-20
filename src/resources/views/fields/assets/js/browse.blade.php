@@ -3,11 +3,12 @@
 
     jQuery(document).ready(function($) {
         uploadFile = function(dat){
+            var id = dat.replace('-file', '');
             $.fancybox({
                 width		: 950,
                 height	    : 500,
                 type		: 'iframe',
-                href        : "http://demo.starter.on/admin/filemanager/dialog?type=featured",
+                href        : "{{ url('admin/filemanager/dialog') }}?type=featured&appendId="+id,
                 fitToView   : false,
                 autoScale   : false,
                 autoSize    : false
@@ -19,8 +20,9 @@
             console.log(data);
             var patt = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
             if(patt.test(data.thumb)){
-                $("#{{ $field['name'] }}-text").val(data.thumb);
-                $("#{{ $field['name'] }}").attr({ 'src' : data.thumb});
+                $("#"+data.appendId+"-text").val(data.thumb);
+                $("#"+data.appendId).attr({ 'src' : data.thumb});
+                $("#"+data.appendId).removeClass('hide');
                 $.fancybox.close();
             }
         };
