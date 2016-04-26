@@ -20,18 +20,21 @@
             var pattern = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
             if(data.appendId == null){
                 if(pattern.test(data.thumb)){
-                    $("#"+data.appendId+"-text").val(data.thumb);
-                    $("#"+data.appendId).attr({ 'src' : data.thumb});
-                    $("#"+data.appendId).removeClass('hide');
+                    var id = data.appendId;
+                    var id = id.replace('-text', '');
+                    $("#"+id+"-text").val(data.thumb);
+                    $("#"+id).attr({ 'src' : data.thumb});
+                    $("#"+id).removeClass('hide');
                 }
             } else {
                 if(pattern.test(data.thumb)){
-                    console.log(data.appendId);
-                    $("#"+data.appendId+"-text").val(data.thumb);
-                    $("#"+data.appendId).attr({ 'src' : data.thumb});
-                    $("#"+data.appendId).removeClass('hide');
+                    var id = data.appendId;
+                    var id = id.replace('-text', '');
+                    $("#"+id+"-text").val(data.thumb);
+                    $("#"+id).attr({ 'src' : data.thumb});
+                    $("#"+id).removeClass('hide');
                 } else {
-                    $("#"+data.appendId+"-text").val(data.thumb);
+                    $("#"+data.appendId).val(data.thumb);
                 }
             }
             $.fancybox.close();

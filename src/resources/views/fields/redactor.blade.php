@@ -8,5 +8,5 @@
     		{{ $attribute }}="{{ $value }}"
     	@endforeach
 		id="redactor-{{ $language["iso"] }}"
-    	>{{ (isset($field['value'])) ? $field['value'] : '' }}</textarea>
+    	>{!! (isset($field['value'])) ? $field['value'] : '' !!}</textarea>
   </div>

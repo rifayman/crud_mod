@@ -29,7 +29,7 @@
                 </div>
                 <div class="box-body">
                     <!-- load the view from the application if it exists, otherwise load the one in the package -->
-                    @if(view()->exists('vendor.dick.crud.form_content'))
+                    @if(view()->exists('vendor.infinety-es.crud.form_content'))
                         @include('vendor.infinety-es.crud.form_content')
                     @else
                         @if(isset($crud["is_translate"]) && $crud["is_translate"] = true)
