@@ -690,8 +690,6 @@ class CrudController extends BaseController
                                 $file = \Request::file($field['name']);
                                 $request[$field['store_in']][$field['name']] = $file->getClientOriginalName();
                             } else {
-
-
                                 $request[$field['store_in']][$field['name']] = $request[$field['name']];
                             }
 
