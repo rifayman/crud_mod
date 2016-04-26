@@ -2,29 +2,39 @@
 <script type="application/javascript">
 
     jQuery(document).ready(function($) {
-        uploadFile = function(dat){
-            var id = dat.replace('-file', '');
+
+        uploadFile = function(url){
             $.fancybox({
                 width		: 950,
                 height	    : 500,
                 type		: 'iframe',
-                href        : "{{ url('admin/filemanager/dialog') }}?type=featured&appendId="+id,
+                href        : url,
                 fitToView   : false,
                 autoScale   : false,
                 autoSize    : false
             });
         };
 
-
         OnMessage = function(data){
             console.log(data);
-            var patt = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
-            if(patt.test(data.thumb)){
-                $("#"+data.appendId+"-text").val(data.thumb);
-                $("#"+data.appendId).attr({ 'src' : data.thumb});
-                $("#"+data.appendId).removeClass('hide');
-                $.fancybox.close();
+            var pattern = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
+            if(data.appendId == null){
+                if(pattern.test(data.thumb)){
+                    $("#"+data.appendId+"-text").val(data.thumb);
+                    $("#"+data.appendId).attr({ 'src' : data.thumb});
+                    $("#"+data.appendId).removeClass('hide');
+                }
+            } else {
+                if(pattern.test(data.thumb)){
+                    console.log(data.appendId);
+                    $("#"+data.appendId+"-text").val(data.thumb);
+                    $("#"+data.appendId).attr({ 'src' : data.thumb});
+                    $("#"+data.appendId).removeClass('hide');
+                } else {
+                    $("#"+data.appendId+"-text").val(data.thumb);
+                }
             }
+            $.fancybox.close();
         };
     });
 
