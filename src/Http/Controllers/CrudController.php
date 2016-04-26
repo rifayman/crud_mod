@@ -368,7 +368,7 @@ class CrudController extends BaseController
         $this->data['crud'] = $this->crud;
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-        return $this->firstViewThatExists('vendor.dick.crud.edit', 'crud::edit', $this->data);
+        return $this->firstViewThatExists('vendor.infinety.crud.edit', 'crud::edit', $this->data);
     }
 
     /**
@@ -470,7 +470,7 @@ class CrudController extends BaseController
         $this->data['crud'] = $this->crud;
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-        return $this->firstViewThatExists('vendor.dick.crud.show', 'crud::show', $this->data);
+        return $this->firstViewThatExists('vendor.infinety.crud.show', 'crud::show', $this->data);
     }
 
     /**
@@ -526,7 +526,7 @@ class CrudController extends BaseController
         $this->data['crud'] = $this->crud;
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-        return $this->firstViewThatExists('vendor.dick.crud.reorder', 'crud::reorder', $this->data);
+        return $this->firstViewThatExists('vendor.infinety.crud.reorder', 'crud::reorder', $this->data);
     }
 
     /**
@@ -597,7 +597,7 @@ class CrudController extends BaseController
         }
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
-        return $this->firstViewThatExists('vendor.dick.crud.details_row', 'crud::details_row', $this->data);
+        return $this->firstViewThatExists('vendor.infinety.crud.details_row', 'crud::details_row', $this->data);
     }
 
     /**

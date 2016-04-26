@@ -11,7 +11,7 @@
     }
     ?>
     <select name="{{$field['name']}}" class="form-control" id="select_state_{{ $field["name"] }}">
-            <option value="0" {{ ($value == 0) ? 'selected' : '' }}>Disabled</option>
-            <option value="1" {{ ($value == 1)  ? 'selected' : '' }}>Active</option>
-	</select>
+        <option value="0" {{ ($value == 0) ? 'selected' : '' }}>Disabled</option>
+        <option value="1" {{ ($value == 1)  ? 'selected' : '' }}>Active</option>
+    </select>
 </div>
