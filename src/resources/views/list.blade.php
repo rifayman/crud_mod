@@ -49,11 +49,15 @@
                 <tr>
 
                     @foreach ($crud['columns'] as $column)
-                        <th>{{ $column['label'] }}</th>
+                        @if($column['name'] == "id")
+                            <th style="width:30px">{{ $column['label'] }}</th>
+                        @else
+                            <th>{{ $column['label'] }}</th>
+                        @endif
                     @endforeach
 
                     @if ( !( isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false ) )
-                        <th>{{ _(trans('crud.actions')) }}</th>
+                            <th style="min-width:150px">{{ _(trans('crud.actions')) }}</th>
                     @endif
 
                 </tr>
