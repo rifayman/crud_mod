@@ -29,11 +29,33 @@ class CrudServiceProvider extends ServiceProvider
         // use this if your package has routes
         // $this->setupRoutes($this->app->router);
 
-        // use this if your package needs a config file
-        // $this->publishes([
-        //         __DIR__.'/config/config.php' => config_path('CRUD.php'),
-        // ]);
+        /**
+         * Config File
+         */
+        $this->publishes([
+             __DIR__.'/../config/infinety-crud.php' => config_path('infinety-crud.php'),
+        ], 'config');
 
+        /**
+         * Migrations
+         */
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('migrations')
+        ], 'migrations');
+
+        /**
+         * Migrations
+         */
+        $this->publishes([
+            __DIR__.'/../database/seeds/' => database_path('seeds')
+        ], 'seeds');
+
+        /**
+         * Translations
+         */
+        $this->publishes([
+            __DIR__.'/../translations/' => resource_path('lang/'),
+        ]);
         // use the vendor configuration file as fallback
         // $this->mergeConfigFrom(
         //     __DIR__.'/config/config.php', 'CRUD'

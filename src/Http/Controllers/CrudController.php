@@ -3,7 +3,7 @@
 namespace Infinety\CRUD\Http\Controllers;
 
 use Datatables;
-use Illuminate\Foundation\Bus\DispatchesCommands;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -14,14 +14,15 @@ use Illuminate\Support\Str;
 use Infinety\CRUD\Http\Requests\CrudRequest as StoreRequest;
 use Infinety\CRUD\Http\Requests\CrudRequest as UpdateRequest;
 use Jenssegers\Date\Date;
-use Prologue\Alerts\Facades\Alert;
-// VALIDATION: change the requests to match your own file names if you need form validation
-use starter\Http\Locale;
+
+use Notify;
+
+//use Infinety\CRUD\Models\Locale;
 use Storage;
 
 class CrudController extends BaseController
 {
-    use DispatchesCommands, ValidatesRequests;
+    use DispatchesJobs, ValidatesRequests;
 
     public $data = [];
     public $crud = [
@@ -41,17 +42,15 @@ class CrudController extends BaseController
                         'locale_column'         => 'locale',
                         ];
 
+    protected $locale; 
+
     public function __construct()
     {
-
-        // Check for the right roles to access these pages
-        if (! \Entrust::can('view-admin-panel')) {
-            //abort(403, trans('crud.unauthorized_access'));
-        }
-
+        $this->locale = config('infinety-crud.locale-model');
+        
         // If is multilanguage fill languages array with languages availables
         if (isset($this->crud['is_translate']) && $this->crud['is_translate'] == true) {
-            $locales = new Locale();
+            $locales = new $this->locale;
             $this->crud['languages'] = $locales->getAvailables()->toArray();
         }
 
@@ -61,6 +60,9 @@ class CrudController extends BaseController
         }
 
         $this->data['crud'] = $this->crud;
+
+
+
     }
 
     /**
@@ -238,7 +240,7 @@ class CrudController extends BaseController
                             if (trim($columnInfo->$column['name']) == '') {
                                 if (isset($this->crud['is_translate']) && $this->crud['is_translate'] == true) {
                                     if ($columnInfo->translate()) {
-                                        $columnInfo->$column['name'] = $columnInfo->translate()->$column['name'];
+                                        $columnInfo->$column['name'] = $columnInfo->$column['name'];
                                     }
                                 }
                             }
@@ -289,6 +291,8 @@ class CrudController extends BaseController
 
         $values_to_store = $this->hasFilesToUpload($values_to_store);
 
+        
+
         $translated_items = false;
         if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
             $translated_items = $values_to_store['translate'];
@@ -317,7 +321,6 @@ class CrudController extends BaseController
 
                 $translatedFIelds = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
 
-
                 $modelTranslatable::create($translatedFIelds);
             }
         }
@@ -331,7 +334,7 @@ class CrudController extends BaseController
         }
 
         // show a success message
-        Alert::success(trans('crud.insert_success'))->flash();
+        Notify::success(trans('crud.insert_success'), 'Success Created');
 
         // redirect the user where he chose to be redirected
         switch (\Request::input('redirect_after_save')) {
@@ -454,7 +457,7 @@ class CrudController extends BaseController
         }
 
         // show a success message
-        \Alert::success(trans('crud.update_success'))->flash();
+        Notify::success(trans('crud.update_success'), 'Success Updated');
 
         if (isset($this->crud['redirect_self']) && $this->crud['redirect_self'] == true) {
             return Redirect::to($this->crud['route'].'/'.\Request::input('id').'/edit');
@@ -961,7 +964,7 @@ class CrudController extends BaseController
         $languages = false;
         if (isset($this->data['crud']['is_translate'])) {
             if ($this->data['crud']['is_translate']) {
-                $locales = new Locale();
+                $locales = new $this->locale;
                 $languages = $locales->getAvailables();
             }
         }

@@ -6,7 +6,7 @@
     	type="text"
     	class="form-control"
 
-    	@foreach ($field as $attribute => $value)
+      @foreach ($field as $attribute => $value)
     		{{ $attribute }}="{{ $value }}"
     	@endforeach
     	>

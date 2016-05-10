@@ -26,5 +26,3 @@
 	@endforeach
 
 </script>
-
-<?php \Debugbar::info($language); ?>
