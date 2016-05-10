@@ -24,8 +24,7 @@
         "vinkla/translator" : "3.1.*",
         "yajra/laravel-datatables-oracle" : "~6.0",
         "jorgejavierleon/laravelpnotify" : "~1.0",
-        "infinety-es/filemanager": "1.*",
-
+        "infinety-es/filemanager": "1.*"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",
