@@ -124,6 +124,7 @@ class CrudController extends BaseController
         $this->prepareFields();
         $this->data['crud'] = $this->crud;
 
+
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
         return $this->firstViewThatExists('vendor.infinety.crud.create', 'crud::create', $this->data);
     }

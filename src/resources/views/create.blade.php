@@ -32,10 +32,11 @@
                     @if(view()->exists('vendor.infinety-es.crud.form_content'))
                         @include('vendor.infinety-es.crud.form_content')
                     @else
-                        @if(isset($crud["is_translate"]) && $crud["is_translate"] = true)
+                        @if(isset($crud["is_translate"]) && $crud["is_translate"] == true)
                             @include('crud::form_content_languages')
                         @else
                             @include('crud::form_content')
+                            
                         @endif
 
                     @endif

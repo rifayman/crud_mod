@@ -5,6 +5,8 @@ namespace Infinety\CRUD;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Route;
+use Infinety\CRUD\Commands\CrudCreatorHelper;
+use Infinety\CRUD\Commands\CrudCreatorHelperInline;
 
 class CrudServiceProvider extends ServiceProvider
 {
@@ -60,6 +62,8 @@ class CrudServiceProvider extends ServiceProvider
         // $this->mergeConfigFrom(
         //     __DIR__.'/config/config.php', 'CRUD'
         // );
+
+        $this->registerCommands();
     }
 
     /**
@@ -111,5 +115,14 @@ class CrudServiceProvider extends ServiceProvider
         Route::get($name.'/getData', $controller.'@getData');
 
         Route::resource($name, $controller, $options);
+    }
+
+    /**
+     * Register datatables commands.
+     */
+    private function registerCommands()
+    {
+        $this->commands(CrudCreatorHelper::class);
+        $this->commands(CrudCreatorHelperInline::class);
     }
 }
