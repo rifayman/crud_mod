@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Crud\__Singular__\Controllers;
+namespace __storagePath____Singular__\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -16,7 +16,7 @@ class __Singular__CrudController extends CrudController {
     public $crud = array(
         
         // what's the namespace for your entity's model
-        "model" => "\App\Crud\__Singular__\Models\__Singular__",
+        "model" => "\__storagePath____Singular__\Models\__Singular__",
         
         // what name will show up on the buttons, in singural (ex: Add entity)
         "entity_name" => "__Singular__",
@@ -25,7 +25,7 @@ class __Singular__CrudController extends CrudController {
         "entity_name_plural" => "__Plural__",
         
         // what route have you defined for your entity? used for links.
-        "route" => "admin/__singular__",
+        "route" => "__dashBoardPath__/__singular__",
         
         "details_row" => false,
         
@@ -33,7 +33,7 @@ class __Singular__CrudController extends CrudController {
 
         "is_translate" => __translatable__,
         
-        "model_translate" => "App\Crud\__Singular__\Models\__Singular__Translation",
+        "model_translate" => "\__storagePath____Singular__\Models\__Singular__Translation",
 
         // *****
         // COLUMNS

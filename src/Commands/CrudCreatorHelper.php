@@ -39,6 +39,7 @@ class CrudCreatorHelper extends Command
     public function __construct()
     {
         parent::__construct();
+
     }
 
     /**
@@ -52,6 +53,16 @@ class CrudCreatorHelper extends Command
          * Define Data Container
          */
         $this->crud = array();
+
+        /**
+         * Get StoragePath
+         */
+        $this->getStoragePath();
+
+        /**
+         * Get DashBoard Path
+         */
+        $this->getDashBoardPath();
 
         /**
          * Collect Data
@@ -79,6 +90,30 @@ class CrudCreatorHelper extends Command
          */
         $this->makeMigration();
              
+    }
+
+    /**
+     * GetStoragePath
+     */
+    private function getStoragePath()
+    {
+        $path = config('filesystems.disks.crud.root');
+        $this->crud['storagePath'] = str_replace(base_path()."/", '',  $path);
+        $this->crud['storagePath'] = str_replace("/", '\\',  $this->crud['storagePath']);
+        $this->crud['storagePath'] = ucfirst($this->crud['storagePath']).'\\';
+        //dump($this->crud);
+        //dd();
+    }
+
+    /**
+     * getDashBoardPath
+     */
+    private function getDashBoardPath()
+    {
+        $path = config('infinety-crud.crud-path');
+        $this->crud['dashBoardPath'] = $path;
+        //dump($this->crud);
+        //dd();
     }
 
     /**
@@ -204,6 +239,16 @@ class CrudCreatorHelper extends Command
         Storage::put('/CrudMigrations/'.$migration_name , $migration);
         // Move Migration File to migraons Folder        
         rename( storage_path('app').'/CrudMigrations/'.$migration_name , database_path('migrations').'/'.$migration_name );
+
+        // Asking to process migrations.
+        if ($this->confirm('Do you wish to migrate recent created crud migration? [y|N]')) {
+            
+            $exitCode = $this->call('migrate');
+            dump($exitCode);
+            dd();
+
+
+        }
         
     }
 
