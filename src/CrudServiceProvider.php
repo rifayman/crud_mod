@@ -29,7 +29,7 @@ class CrudServiceProvider extends ServiceProvider
         $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'crud');
 
         // use this if your package has routes
-        // $this->setupRoutes($this->app->router);
+        $this->setupRoutes($this->app->router);
 
         /**
          * Config File
@@ -76,7 +76,17 @@ class CrudServiceProvider extends ServiceProvider
     public function setupRoutes(Router $router)
     {
         $router->group(['namespace' => 'Infinety\CRUD\Http\Controllers'], function ($router) {
-            require __DIR__.'/Http/routes.php';
+            //Autoload route files
+            $files = Storage::disk('crud')->allFiles('Routes2Include');
+            foreach($files as $file){
+                if(str_contains($file, 'Routes')){
+                    $fileSt = app_path($file);
+                    $crudFolder = config('filesystems.disks.crud.root');
+                    $path = str_replace(app_path()."/", '', $crudFolder);
+                    require app_path($path.DIRECTORY_SEPARATOR.$file);
+                }
+            }
+
         });
     }
 
