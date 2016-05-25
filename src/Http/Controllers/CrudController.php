@@ -60,9 +60,6 @@ class CrudController extends BaseController
         }
 
         $this->data['crud'] = $this->crud;
-
-
-
     }
 
     /**
@@ -191,7 +188,7 @@ class CrudController extends BaseController
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-                        return "<img src='".asset('uploads/'.$columnInfo->$column['name'])."' width='50%' />";
+                        return "<img src='".asset($columnInfo->$column['name'])."' width='50%' />";
                     });
             } elseif (isset($column['type']) && $column['type'] == 'browse') {
                 $datatable
@@ -205,8 +202,8 @@ class CrudController extends BaseController
             } elseif (isset($column['type']) && isset($column['pivot']) && $column['pivot'] == true) {
                 $datatable
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-//						dd($columnInfo);
-//						dd($column); //["model"]
+//                      dd($columnInfo);
+//                      dd($column); //["model"]
                         $pivotModel = $this->crud['model'];
                         $dataPivot = $column['model']::find($columnInfo[$column['entity']]);
                         if ($dataPivot) {
@@ -291,9 +288,7 @@ class CrudController extends BaseController
         $values_to_store = $this->compactFakeFields(\Request::all());
 
         $values_to_store = $this->hasFilesToUpload($values_to_store);
-
         
-
         $translated_items = false;
         if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
             $translated_items = $values_to_store['translate'];
@@ -308,23 +303,40 @@ class CrudController extends BaseController
             unset($values_to_store['translate']);
         }
         $item = $model::create($values_to_store);
+        $fields = $this->getFields();
+        if($this->hasMedia($fields["normal"])){
+            $this->processMedia($fields["normal"], $values_to_store, $item);
+        }
 
         if ($translated_items) {
             $item->translations()->delete();
 
             $modelTranslatable = $this->crud['model_translate'];
-
+            $models = array();
+            $valuesTranslated = array();
             foreach ($this->data['crud']['languages'] as $language) {
                 $table = new $model();
                 $table = $table->getTable();
 
                 $itemInfo = [$table.'_id' => $item->id, $this->crud['locale_column'] => $language[$this->crud['locale_id']]];
 
-                $translatedFIelds = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
+                $translatedFields = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
 
-                $modelTranslatable::create($translatedFIelds);
+                $valuesTranslated[] = $translatedFields;
+                $models[] = $modelTranslatable::create($translatedFields);
+            }
+
+            $count = 0;
+            foreach ($this->data['crud']['languages'] as $language) {
+                $fields = $this->getFields();
+                if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
+                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTranslated[$count], $models[$count]);
+                }
+                $count++;
             }
         }
+
+        
 
         // if it's a relationship with a pivot table, also sync that
         $this->prepareFields();
@@ -348,6 +360,7 @@ class CrudController extends BaseController
                 break;
         }
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -427,8 +440,18 @@ class CrudController extends BaseController
         $item = $model::find(\Request::input('id'))
                         ->update($values_to_store);
 
+        //Check if has Media option
+        $fields = $this->getFields();
+        $model = $model::find(\Request::input('id'));
+        if($this->hasMedia($fields["normal"])){
+            $this->processMedia($fields["normal"], $values_to_store, $model);
+        }
+
         if ($translated_items) {
             $modelTranslatable = $this->crud['model_translate'];
+
+            $models = array();
+            $valuesTranslated = array();
 
             foreach ($this->data['crud']['languages'] as $language) {
                 $table = new $model();
@@ -437,17 +460,39 @@ class CrudController extends BaseController
                                             ->where($this->crud['locale_column'], $language[$this->crud['locale_id']])->first();
 
                 if ($exists) {
+                    
+                    $translatedFields = $translated_items[$language[$this->crud['locale_id']]];
+                    $valuesTranslated[] = $translatedFields;
+
                     $modelTranslatable::where($table.'_id', \Request::input('id'))
                             ->where($this->crud['locale_column'], $language[$this->crud['locale_id']])
                             ->update($translated_items[$language[$this->crud['locale_id']]]);
+
+                    $models[] = $exists;
+
                 } else {
+
                     $itemInfo = [$table.'_id' => \Request::input('id'), $this->crud['locale_column'] => $language[$this->crud['locale_id']]];
 
-                    $translatedFIelds = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
+                    $translatedFields = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
 
-                    $modelTranslatable::create($translatedFIelds);
+                    $valuesTranslated[] = $translatedFields;
+
+                    $models[] = $modelTranslatable::create($translatedFields);
                 }
             }
+
+            //Check if has Media option
+            $count = 0;
+            foreach ($this->data['crud']['languages'] as $language) {
+                $fields = $this->getFields();
+                if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
+                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTranslated[$count], $models[$count]);
+                }
+                $count++;
+            }
+
+
         }
 
         // if it's a relationship with a pivot table, also sync that
@@ -512,7 +557,7 @@ class CrudController extends BaseController
     /**
      *  Reorder the items in the database using the Nested Set pattern.
      *
-     *	Database columns needed: id, parent_id, lft, rgt, depth, name/title
+     *  Database columns needed: id, parent_id, lft, rgt, depth, name/title
      *
      *  @return Response
      */
@@ -1127,6 +1172,60 @@ class CrudController extends BaseController
             return $json[$column];
         } else {
             return;
+        }
+    }
+
+   
+   /**
+    * Check if crud has media attribute
+    * 
+    * @return boolean
+    */
+    private function hasMedia($fields){
+
+        foreach($fields as $k => $field){
+            if(isset($field["usemedia"]) && $field["usemedia"] == true){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    
+    /**
+     * Process media images. Remember to create a Listener to save model when queue ends
+     * 
+     * @param  array
+     * @param  array
+     * @param  Eloquent Model
+     */
+    public function processMedia($fields, $values_to_store, $model){
+        
+        foreach($fields as $k => $field){
+            if(isset($field["usemedia"]) && $field["usemedia"] == true){
+
+                $name = $field["name"];
+                
+
+                $imagesMedia = $model->getMedia($name);
+                $image = $values_to_store[$name];
+                $existe = false;
+                foreach($imagesMedia as $imageMedia){
+                    if(asset($imageMedia->getUrl()) === $image){
+                        $existe = true;
+                    }
+                }         
+                if($existe == false){
+                    $model->clearMediaCollection($name);
+                    $model->addMediaFromUrl($image)
+                          ->preservingOriginal()
+                          ->withCustomProperties(['setModel' => true])
+                          ->toCollection($name);
+                }
+                
+                //IMPORTANT -> Image will be add to model by MediaLogger event    
+            }
         }
     }
 
