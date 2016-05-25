@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Crud\__Singular__\Models;
+namespace __storagePath____Singular__\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,6 +29,6 @@ class __Singular__ extends Model implements IsTranslatable
      */
     public function translations()
     {
-        return $this->hasMany(\App\Crud\__Singular__\Models\__Singular__Translation::class, '__plural___id', 'id');
+        return $this->hasMany(\__storagePath____Singular__\Models\__Singular__Translation::class, '__plural___id', 'id');
     }
 }

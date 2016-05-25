@@ -8,5 +8,6 @@
 return [
 	
 	"locale-model" => 'Infinety\CRUD\Models\Locale',
+	"crud-path" => 'admin',
 
 ];

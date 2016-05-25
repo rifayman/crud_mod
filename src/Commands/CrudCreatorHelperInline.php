@@ -19,6 +19,7 @@ class CrudCreatorHelperInline extends Command
                             {--singular=element : crud object name, singular}
                             {--plural=elements : crud object name, plural}
                             {--translatable=false : translatable crud(true,false)}
+                            {--migrate=false : migrate now crud(true,false)}
                             {--fields=false : crud fields, array of fields}
                             ';
 
@@ -27,7 +28,16 @@ class CrudCreatorHelperInline extends Command
      *
      * @var string
      */
-    protected $description = 'Inline Infinety-Crud Structure Creator Helper';
+    protected $description = '
+    Inline Infinety-Crud Structure Creator Helper.
+    
+    Example = artisan infinety-crud:createInline    --singular=book 
+                                                    --plural=books 
+                                                    --translatable=true 
+                                                    --migrate=false 
+                                                    --fields="isbn|text|false","title|text|true","description|textarea|true","stars|number|false"
+    
+    ';
 
     protected $crud;
     protected $fields_array;
@@ -61,6 +71,16 @@ class CrudCreatorHelperInline extends Command
         $this->crud = array();
 
         /**
+         * Get StoragePath
+         */
+        $this->getStoragePath();
+
+        /**
+         * Get DashBoard Path
+         */
+        $this->getDashBoardPath();
+
+        /**
          * Collect Data
          */
         $this->collectData();
@@ -86,6 +106,30 @@ class CrudCreatorHelperInline extends Command
          */
         $this->makeMigration();
              
+    }
+
+    /**
+     * GetStoragePath
+     */
+    private function getStoragePath()
+    {
+        $path = config('filesystems.disks.crud.root');
+        $this->crud['storagePath'] = str_replace(base_path()."/", '',  $path);
+        $this->crud['storagePath'] = str_replace("/", '\\',  $this->crud['storagePath']);
+        $this->crud['storagePath'] = ucfirst($this->crud['storagePath']).'\\';
+        //dump($this->crud);
+        //dd();
+    }
+
+    /**
+     * getDashBoardPath
+     */
+    private function getDashBoardPath()
+    {
+        $path = config('infinety-crud.crud-path');
+        $this->crud['dashBoardPath'] = $path;
+        //dump($this->crud);
+        //dd();
     }
 
     /**
@@ -142,27 +186,6 @@ class CrudCreatorHelperInline extends Command
                 $fieldNumber++;
             
             }
-            /*
-            while ($newField) {
-                $this->fields_array[$fieldNumber]['name'] = $this->ask('Field Name');
-
-                $this->fields_array[$fieldNumber]['type'] = $this->anticipate('Field Type (checkbox, colorpicker, datetime_picker, email, enum, hidden, image, number,page_or_link, password, radio, redactor, select2, select, select_from_array, textarea, text, upload, url):', ['checkbox','colorpicker','datetime_picker','email','enum','hidden','image','number','page_or_link','password','radio','redactor','select2','select','select_from_array','textarea','text','upload','url']);
-
-                if ( $this->crud['translatable'] == 'true' ) {
-                    
-                    if ( $this->confirm('Translatable Field?') ) {
-
-                        $this->fields_array[$fieldNumber]['translatable'] = 'true';
-                    }
-
-                }
-                 
-                $fieldNumber++;
-
-                $newField = $this->confirm('Add Another Field?');
-
-            }
-            */
 
             $this->generateColumnsAndFields();
 
@@ -235,6 +258,11 @@ class CrudCreatorHelperInline extends Command
         // Move Migration File to migraons Folder        
         rename( storage_path('app').'/CrudMigrations/'.$migration_name , database_path('migrations').'/'.$migration_name );
         
+        if ($this->option('migrate') == 'true') {
+            
+            $exitCode = $this->call('migrate');
+
+        }
     }
 
     /**

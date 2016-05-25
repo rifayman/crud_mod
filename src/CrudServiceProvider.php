@@ -89,10 +89,17 @@ class CrudServiceProvider extends ServiceProvider
     {
         $this->registerCRUD();
 
-        // use this if your package has a config file
-        // config([
-        //         'config/CRUD.php',
-        // ]);
+        // Register dependency packages
+        $this->app->register('Infinety\FileManager\FileManagerServiceProvider');
+        $this->app->register('Collective\Html\HtmlServiceProvider');
+        $this->app->register('Yajra\Datatables\DatatablesServiceProvider');
+        $this->app->register('Jleon\LaravelPnotify\NotifyServiceProvider');
+        
+        // Register dependancy aliases
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        $loader->alias('Html', 'Collective\Html\HtmlFacade');
+        $loader->alias('Form', 'Collective\Html\FormFacade');
+        $loader->alias('Notify', 'Jleon\LaravelPnotify\Notify');
     }
 
     private function registerCRUD()

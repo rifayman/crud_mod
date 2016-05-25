@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Crud\__Singular__\Models;
+namespace __storagePath____Singular__\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
