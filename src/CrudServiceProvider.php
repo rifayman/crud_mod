@@ -5,6 +5,7 @@ namespace Infinety\CRUD;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Route;
+use Storage;
 use Infinety\CRUD\Commands\CrudCreatorHelper;
 use Infinety\CRUD\Commands\CrudCreatorHelperInline;
 
