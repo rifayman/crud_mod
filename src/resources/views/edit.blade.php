@@ -28,15 +28,19 @@
 		    </div>
 		    <div class="box-body">
 		      <!-- load the view from the application if it exists, otherwise load the one in the package -->
-		      @if(view()->exists('vendor.dick.crud.form_content'))
-		      	@include('vendor.dick.crud.form_content')
-		      @else
-					@if(isset($crud["is_translate"]) && $crud["is_translate"] = true)
-						@include('crud::form_content_languages')
-					@else
-						@include('crud::form_content')
-					@endif
-		      @endif
+		      	@if( isset($crud["is_translate"]) && $crud["is_translate"] == true ) 
+	                @if( view()->exists('vendor.infinety.crud.form_content') )
+	                    @include('vendor.infinety.crud.form_content_languages')
+	                @else
+	                    @include('crud::form_content_languages')
+	                @endif
+	            @else
+	                @if( view()->exists('vendor.infinety.crud.form_content') )
+	                    @include('vendor.infinety.crud.form_content')
+	                @else
+	                    @include('crud::form_content')
+	                @endif
+	            @endif
 		    </div><!-- /.box-body -->
 		    <div class="box-footer">
 				@if(isset($crud["redirect_self"]) && $crud["redirect_self"] == true )

@@ -1,19 +1,7 @@
-@extends('admin.layout')
-
-@section('content-header')
-    <section class="content-header">
-        <h1>
-            {{ trans('crud.add') }} <span class="text-lowercase">{{ $crud['entity_name'] }}</span>
-        </h1>
-        <ol class="breadcrumb">
-            <li><a href="{{ url('admin/dashboard') }}">Admin</a></li>
-            <li><a href="{{ url($crud['route']) }}" class="text-capitalize">{{ $crud['entity_name_plural'] }}</a></li>
-            <li class="active">{{ _(trans('crud.add')) }}</li>
-        </ol>
-    </section>
-@endsection
+@extends('layouts.app')
 
 @section('content')
+<div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <!-- Default box -->
@@ -75,5 +63,5 @@
             {!! Form::close() !!}
         </div>
     </div>
-
+</div>
 @endsection

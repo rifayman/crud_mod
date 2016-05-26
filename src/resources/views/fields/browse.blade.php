@@ -1,6 +1,6 @@
 
 
-    @if(!isset($field["browse"]) || $field["browse"] == 'images')
+    @if(!isset($field["browse"]) || $field["browse"] == 'image')
     <img class="output {{ (isset($field["value"]) &&  !empty($field["value"])) ? '' : 'hide' }}" src="{{ (isset($field["value"]) &&  !empty($field["value"])) ? $field["value"] : '' }}" width="20%" height="5%" id="{{ $field['name'] }}">
 	@endif
 
