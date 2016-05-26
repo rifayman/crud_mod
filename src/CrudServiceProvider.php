@@ -6,11 +6,17 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Route;
 use Storage;
+use Illuminate\Console\AppNamespaceDetectorTrait;
+
 use Infinety\CRUD\Commands\CrudCreatorHelper;
 use Infinety\CRUD\Commands\CrudCreatorHelperInline;
 
+
 class CrudServiceProvider extends ServiceProvider
 {
+
+    use AppNamespaceDetectorTrait;
+    
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -76,7 +82,14 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function setupRoutes(Router $router)
     {
-        $router->group(['namespace' => 'Infinety\CRUD\Http\Controllers'], function ($router) {
+
+        $crudFolder = config('filesystems.disks.crud.root');
+        $path = str_replace(app_path()."/", '', $crudFolder);
+        $namespace = $this->getAppNamespace().$path;
+
+        $router->group([
+            'namespace' => $namespace, 'middleware' => 'web',
+        ], function ($router) {
             //Autoload route files
             $files = Storage::disk('crud')->allFiles('Routes2Include');
             foreach($files as $file){
@@ -87,8 +100,8 @@ class CrudServiceProvider extends ServiceProvider
                     require app_path($path.DIRECTORY_SEPARATOR.$file);
                 }
             }
-
         });
+
     }
 
     /**
@@ -100,17 +113,10 @@ class CrudServiceProvider extends ServiceProvider
     {
         $this->registerCRUD();
 
-        // Register dependency packages
-        $this->app->register('Infinety\FileManager\FileManagerServiceProvider');
-        $this->app->register('Collective\Html\HtmlServiceProvider');
-        $this->app->register('Yajra\Datatables\DatatablesServiceProvider');
-        $this->app->register('Jleon\LaravelPnotify\NotifyServiceProvider');
-        
-        // Register dependancy aliases
-        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('Html', 'Collective\Html\HtmlFacade');
-        $loader->alias('Form', 'Collective\Html\FormFacade');
-        $loader->alias('Notify', 'Jleon\LaravelPnotify\Notify');
+        // use this if your package has a config file
+        // config([
+        //         'config/CRUD.php',
+        // ]);
     }
 
     private function registerCRUD()
@@ -131,7 +137,6 @@ class CrudServiceProvider extends ServiceProvider
         Route::get($name.'/{id}/details', $controller.'@showDetailsRow');
         Route::get($name.'/{id}/translate/{lang}', $controller.'@translateItem');
         Route::get($name.'/getData', $controller.'@getData');
-
         Route::resource($name, $controller, $options);
     }
 

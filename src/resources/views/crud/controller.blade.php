@@ -13,6 +13,18 @@ use Illuminate\Http\Request;
 //use starter\Admin\Historia\Requests\AboutUsUpdateRequest as UpdateRequest;
 
 class __Singular__CrudController extends CrudController {
+
+    /**
+    * Create a new controller instance.
+    *
+    * @return void
+    */
+    public function __construct()
+    {
+        $this->middleware(config('infinety-crud.middleware', 'auth'));
+        parent::__construct();
+    }
+
     public $crud = array(
         
         // what's the namespace for your entity's model
