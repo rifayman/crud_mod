@@ -162,7 +162,7 @@ class CrudCreatorHelper extends Command
             while ($newField) {
                 $this->fields_array[$fieldNumber]['name'] = $this->ask('Field Name');
 
-                $this->fields_array[$fieldNumber]['type'] = $this->anticipate('Field Type (checkbox, colorpicker, datetime_picker, email, enum, hidden, image, number,page_or_link, password, radio, redactor, select2, select, select_from_array, textarea, text, upload, url):', ['checkbox','colorpicker','datetime_picker','email','enum','hidden','image','number','page_or_link','password','radio','redactor','select2','select','select_from_array','textarea','text','upload','url']);
+                $this->fields_array[$fieldNumber]['type'] = $this->anticipate('Field Type (checkbox, colorpicker, date, datetime_picker, email, enum, hidden, image, number,page_or_link, password, radio, redactor, select2, select, select_from_array, textarea, text, browse, url):', ['checkbox','colorpicker','date', 'datetime_picker','email','enum','hidden','image','number','page_or_link','password','radio','redactor','select2','select','select_from_array','textarea','text','browse','url']);
 
                 if ( $this->crud['translatable'] == 'true' ) {
                     
@@ -317,6 +317,7 @@ class CrudCreatorHelper extends Command
         $field_equivalence = [
             'checkbox'          => 'boolean',
             'colorpicker'       => 'string',
+            'date'              => 'date',
             'datetime_picker'   => 'dateTime',
             'email'             => 'string',
             'enum'              => 'string',
@@ -332,7 +333,7 @@ class CrudCreatorHelper extends Command
             'select_from_array' => 'string',
             'textarea'          => 'text',
             'text'              => 'text',
-            'upload'            => 'string',
+            'browse'            => 'string',
             'url'               => 'string',
         ];
 

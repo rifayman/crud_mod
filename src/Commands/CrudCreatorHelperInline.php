@@ -329,6 +329,7 @@ class CrudCreatorHelperInline extends Command
         $field_equivalence = [
             'checkbox'          => 'boolean',
             'colorpicker'       => 'string',
+            'date'              => 'date',
             'datetime_picker'   => 'dateTime',
             'email'             => 'string',
             'enum'              => 'string',
@@ -344,7 +345,7 @@ class CrudCreatorHelperInline extends Command
             'select_from_array' => 'string',
             'textarea'          => 'text',
             'text'              => 'text',
-            'upload'            => 'string',
+            'browse'            => 'string',
             'url'               => 'string',
         ];
 
