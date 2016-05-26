@@ -10,6 +10,7 @@ use Illuminate\Console\AppNamespaceDetectorTrait;
 
 use Infinety\CRUD\Commands\CrudCreatorHelper;
 use Infinety\CRUD\Commands\CrudCreatorHelperInline;
+use Infinety\CRUD\Commands\CrudInstaller;
 
 
 class CrudServiceProvider extends ServiceProvider
@@ -157,5 +158,6 @@ class CrudServiceProvider extends ServiceProvider
     {
         $this->commands(CrudCreatorHelper::class);
         $this->commands(CrudCreatorHelperInline::class);
+        $this->commands(CrudInstaller::class);
     }
 }

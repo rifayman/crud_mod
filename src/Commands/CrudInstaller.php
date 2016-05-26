@@ -52,19 +52,19 @@ class CrudInstaller extends Command
     private function publishProviders()
     {
         $this->info('Publishing Crud Files');
-        $this->call('vendor:publish --provider="Infinety\CRUD\CrudServiceProvider"');
+        $this->call('vendor:publish', ['--provider'=>"Infinety\CRUD\CrudServiceProvider"]);
 
         $this->info('Publishing FileManager Files');
-        $this->call('vendor:publish --provider="Infinety\FileManager\FileManagerServiceProvider"');     
+        $this->call('vendor:publish', ['--provider'=>"Infinety\FileManager\FileManagerServiceProvider"]);     
         
         $this->info('Publishing Datatables Files');
-        $this->call('vendor:publish --provider="Yajra\Datatables\DatatablesServiceProvider"');
+        $this->call('vendor:publish', ['--provider'=>"Yajra\Datatables\DatatablesServiceProvider"]);
 
         $this->info('Publishing LaravelPnotify Files');
-        $this->call('vendor:publish --provider="Jleon\LaravelPnotify\NotifyServiceProvider"');
+        $this->call('vendor:publish', ['--provider'=>"Jleon\LaravelPnotify\NotifyServiceProvider"]);
 
         $this->info('Publishing MediaLibrary Files');
-        $this->call('vendor:publish --provider="Spatie\MediaLibrary\MediaLibraryServiceProvider"');
+        $this->call('vendor:publish', ['--provider'=>"Spatie\MediaLibrary\MediaLibraryServiceProvider"]);
             
     }  
 }
