@@ -89,6 +89,11 @@ class CrudCreatorHelperInline extends Command
          * Make Controller
          */
         $this->makeController();
+
+        /**
+         * Make Routes File
+         */
+        $this->makeRoutes();
         
                 
         /**
@@ -214,6 +219,19 @@ class CrudCreatorHelperInline extends Command
         $controller = $this->replaceStrings($controller);
         // Store Controller
         Storage::disk('crud')->put($this->crud['Singular'].'/Controllers/'.$this->crud['Singular'].'CrudController.php', $controller);
+    }
+
+    /**
+     * Make Routes function
+     */
+    private function makeRoutes()
+    {
+        // Get Route 
+        $routes = $this->getTemplate('routes');
+        // Replace strings in Controller
+        $routes = $this->replaceStrings($routes);
+        // Store Routes
+        Storage::disk('crud')->put('Routes2Include/'.$this->crud['Singular'].'Routes.php', $routes);
     }
 
     /**

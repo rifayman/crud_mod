@@ -74,6 +74,10 @@ class CrudCreatorHelper extends Command
          */
         $this->makeController();
         
+        /**
+         * Make Routes File
+         */
+        $this->makeRoutes();
                 
         /**
          * Make Model
@@ -199,6 +203,21 @@ class CrudCreatorHelper extends Command
     }
 
     /**
+     * Make Routes function
+     */
+    private function makeRoutes()
+    {
+        // Get Route 
+        $routes = $this->getTemplate('routes');
+        // Replace strings in Controller
+        $routes = $this->replaceStrings($routes);
+        // Store Routes
+        Storage::disk('crud')->put('Routes2Include/'.$this->crud['Singular'].'Routes.php', $routes);
+    }
+
+
+
+    /**
      * Make Model
      */
     private function makeModel()
@@ -244,8 +263,8 @@ class CrudCreatorHelper extends Command
         if ($this->confirm('Do you wish to migrate recent created crud migration? [y|N]')) {
             
             $exitCode = $this->call('migrate');
-            dump($exitCode);
-            dd();
+            //dump($exitCode);
+            //dd();
 
 
         }
