@@ -39,6 +39,10 @@ class CrudServiceProvider extends ServiceProvider
         $this->publishes([__DIR__.'/resources/views/default_pages' => resource_path('views/vendor/infinety/crud'),
         ]);
 
+        // Publish Listeners
+        $this->publishes([__DIR__.'/Listeners' => app_path('Listeners'),
+        ]);
+
         // use this if your package has routes
         $this->setupRoutes($this->app->router);
 
