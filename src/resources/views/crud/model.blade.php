@@ -10,11 +10,17 @@ use Vinkla\Translator\IsTranslatable;
 
 use Vinkla\Translator\Translatable;
 
-class __Singular__ extends Model implements IsTranslatable
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+
+use Spatie\MediaLibrary\HasMedia\Interfaces\HasMediaConversions;
+
+class __Singular__ extends Model implements IsTranslatable, HasMediaConversions
 {
     use CrudTrait;
 
     use Translatable;
+
+    use HasMediaTrait;
 
     protected $table = '__plural__';
 
@@ -31,4 +37,13 @@ class __Singular__ extends Model implements IsTranslatable
     {
         return $this->hasMany(\__storagePath____Singular__\Models\__Singular__Translation::class, '__plural___id', 'id');
     }
+
+    public function registerMediaConversions()
+    {
+        $this->addMediaConversion('thumb')
+             ->setManipulations(['w' => 368, 'h' => 232])
+             ->performOnCollections('*');
+    }
+
+
 }

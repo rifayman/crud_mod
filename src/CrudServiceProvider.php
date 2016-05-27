@@ -33,8 +33,11 @@ class CrudServiceProvider extends ServiceProvider
     public function boot()
     {
         // use this if your package has views
-
         $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'crud');
+
+        // Publish views
+        $this->publishes([__DIR__.'/resources/views/default_pages' => resource_path('views/vendor/infinety/crud'),
+        ]);
 
         // use this if your package has routes
         $this->setupRoutes($this->app->router);

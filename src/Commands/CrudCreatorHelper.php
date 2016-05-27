@@ -164,6 +164,16 @@ class CrudCreatorHelper extends Command
 
                 $this->fields_array[$fieldNumber]['type'] = $this->anticipate('Field Type (checkbox, colorpicker, date, datetime_picker, email, enum, hidden, image, number,page_or_link, password, radio, redactor, select2, select, select_from_array, textarea, text, browse, url):', ['checkbox','colorpicker','date', 'datetime_picker','email','enum','hidden','image','number','page_or_link','password','radio','redactor','select2','select','select_from_array','textarea','text','browse','url']);
 
+                // If Browse selected, use media pacakage to make versions of the image, default, false.
+                $this->fields_array[$fieldNumber]['useMedia'] = false;
+                if ($this->fields_array[$fieldNumber]['type'] == 'browse') {
+                    
+                    if($this->confirm('Use Media Proerties?'))
+                    {
+                        $this->fields_array[$fieldNumber]['useMedia'] = true;
+                    }
+                }
+                
                 if ( $this->crud['translatable'] == 'true' ) {
                     
                     if ( $this->confirm('Translatable Field?') ) {
