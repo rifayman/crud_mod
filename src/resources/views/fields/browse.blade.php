@@ -18,7 +18,7 @@
 
 
 		<?php
-		$url = url('admin/filemanager/dialog')."?type=featured";
+		$url = url(config('filemanager.defaultRoute', 'admin/filemanager').'/dialog')."?type=featured";
 		if(isset($field["browse"])){
 			$url.= "&filter=".$field["browse"];
 		}
