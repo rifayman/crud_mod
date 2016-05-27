@@ -35,6 +35,13 @@ class CrudServiceProvider extends ServiceProvider
         // use this if your package has views
         $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'crud');
 
+         /**
+         * Publish Layout view
+         */
+        $this->publishes([
+            __DIR__.'/resources/views/layout' => base_path('resources/views/layouts'),
+        ], 'layout');
+
         // Publish views
         $this->publishes([__DIR__.'/resources/views/default_pages' => resource_path('views/vendor/infinety/crud'),
         ]);
