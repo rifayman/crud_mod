@@ -289,17 +289,19 @@ class CrudController extends BaseController
         $values_to_store = $this->hasFilesToUpload($values_to_store);
         
         $translated_items = false;
-        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
-            $translated_items = $values_to_store['translate'];
+        if(isset($values_to_store['translate'])){
+            if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
+                $translated_items = $values_to_store['translate'];
 
-            foreach ($translated_items as $k => $langItems) {
-                if (isset($langItems['extras'])) {
-                    $translated_items[$k]['extras_trans'] = $langItems['extras'];
-                    unset($translated_items[$k]['extras']);
+                foreach ($translated_items as $k => $langItems) {
+                    if (isset($langItems['extras'])) {
+                        $translated_items[$k]['extras_trans'] = $langItems['extras'];
+                        unset($translated_items[$k]['extras']);
+                    }
                 }
-            }
 
-            unset($values_to_store['translate']);
+                unset($values_to_store['translate']);
+            }
         }
         $item = $model::create($values_to_store);
         $fields = $this->getFields();
@@ -798,49 +800,53 @@ class CrudController extends BaseController
                     }
                 }
             }
+            if (isset($this->crud['fields']['translate'])) {
 
-            // Loop for translated strings
-            foreach ($this->data['crud']['languages'] as $language) {
-                foreach ($this->crud['fields']['translate'][$language['iso']] as $k => $field) {
+                // Loop for translated strings
+                foreach ($this->data['crud']['languages'] as $language) {
+                    foreach ($this->crud['fields']['translate'][$language['iso']] as $k => $field) {
 
-                    // if it's a fake field
-                    if (isset($field['fake']) && $field['fake'] == true) {
+                        // if it's a fake field
+                        if (isset($field['fake']) && $field['fake'] == true) {
 
-                        // add it to the request in its appropriate variable - the one defined, if defined
-                        if (isset($field['store_in'])) {
-                            $request['translate'][$language['iso']][$field['store_in']][$field['name']] = $request['translate'][$language['iso']][$field['name']];
+                            // add it to the request in its appropriate variable - the one defined, if defined
+                            if (isset($field['store_in'])) {
+                                $request['translate'][$language['iso']][$field['store_in']][$field['name']] = $request['translate'][$language['iso']][$field['name']];
 
-                            $remove_fake_field = array_pull($request['translate'][$language['iso']], $field['name']);
+                                $remove_fake_field = array_pull($request['translate'][$language['iso']], $field['name']);
 
-                            if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
-                                array_push($fake_field_columns_to_encode, $field['store_in']);
-                            }
-                        } else {
-                            //otherwise in the one defined in the $crud variable
+                                if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
+                                    array_push($fake_field_columns_to_encode, $field['store_in']);
+                                }
+                            } else {
+                                //otherwise in the one defined in the $crud variable
 
-                            $request['extras'][$field['name']] = $request[$field['name']];
+                                $request['extras'][$field['name']] = $request[$field['name']];
 
-                            $remove_fake_field = array_pull($request, $field['name']);
-                            if (! in_array('extras', $fake_field_columns_to_encode, true)) {
-                                array_push($fake_field_columns_to_encode, 'extras');
+                                $remove_fake_field = array_pull($request, $field['name']);
+                                if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                                    array_push($fake_field_columns_to_encode, 'extras');
+                                }
                             }
                         }
                     }
-                }
 
-                if (count($fake_field_columns_to_encode)) {
-                    foreach ($fake_field_columns_to_encode as $key => $value) {
-                        if (isset($request['translate'][$language['iso']][$value])) {
-                            $request['translate'][$language['iso']][$value] = json_encode($request['translate'][$language['iso']][$value]);
+                    if (count($fake_field_columns_to_encode)) {
+                        foreach ($fake_field_columns_to_encode as $key => $value) {
+                            if (isset($request['translate'][$language['iso']][$value])) {
+                                $request['translate'][$language['iso']][$value] = json_encode($request['translate'][$language['iso']][$value]);
+                            }
                         }
-                    }
-                    if(isset($request['translate'][$language['iso']][$value.'_trans']) && isset($request['translate'][$language['iso']][$value]) ){
-                        $request['translate'][$language['iso']][$value.'_trans'] = $request['translate'][$language['iso']][$value];
-                        unset($request['translate'][$language['iso']][$value]);
-                    }
+                        if(isset($request['translate'][$language['iso']][$value.'_trans']) && isset($request['translate'][$language['iso']][$value]) ){
+                            $request['translate'][$language['iso']][$value.'_trans'] = $request['translate'][$language['iso']][$value];
+                            unset($request['translate'][$language['iso']][$value]);
+                        }
 
+                    }
                 }
+
             }
+            
         } else {
             foreach ($this->crud['fields'] as $k => $field) {
 
@@ -901,7 +907,7 @@ class CrudController extends BaseController
 
         $fake_field_columns_to_encode = [];
 
-        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
+        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true && isset($this->crud['fields']['translate']) ) {
             foreach ($this->crud['fields']['translate'] as $k => $fieldArray) {
                 foreach ($fieldArray as $e => $field) {
                     // if it's a fake field
@@ -1104,22 +1110,23 @@ class CrudController extends BaseController
                         }
                     }
                 }
-
-                foreach ($fields['translate'] as $lang => $fieldArray) {
-                    if (is_array($fieldArray)) {
-                        foreach ($fieldArray as $e => $field) {
-                            if (! isset($field['value'])) {
-                                if (! is_null($entry->translate($lang))) {
-                                    if (isset($field['fake']) && $field['fake'] == true) {
-                                        $fields['translate'][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field['name']);
-                                    } else {
-                                        $fields['translate'][$lang][$e]['value'] = $entry->translate($lang)->$field['name'];
+                if (isset($fields['translate'])) {
+                    foreach ($fields['translate'] as $lang => $fieldArray) {
+                        if (is_array($fieldArray)) {
+                            foreach ($fieldArray as $e => $field) {
+                                if (! isset($field['value'])) {
+                                    if (! is_null($entry->translate($lang))) {
+                                        if (isset($field['fake']) && $field['fake'] == true) {
+                                            $fields['translate'][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field['name']);
+                                        } else {
+                                            $fields['translate'][$lang][$e]['value'] = $entry->translate($lang)->$field['name'];
+                                        }
                                     }
                                 }
                             }
+                        } else {
+                            unset($fields['translate'][$lang]);
                         }
-                    } else {
-                        unset($fields['translate'][$lang]);
                     }
                 }
                 $this->crud['fields'] = $fields;
