@@ -175,7 +175,6 @@ class CrudController extends BaseController
                         if ($columnInfo->{$column['entity']}()->getResults()) {
                             $html = $columnInfo->{$column['entity']}()->getResults()->{$column['attribute']};
                         }
-
                         return $html;
                     });
             } elseif (isset($column['type']) && $column['type'] == 'model_function') {
@@ -304,9 +303,17 @@ class CrudController extends BaseController
         }
         $item = $model::create($values_to_store);
         $fields = $this->getFields();
-        if($this->hasMedia($fields["normal"])){
-            $this->processMedia($fields["normal"], $values_to_store, $item);
+        
+        if(isset($fields["normal"])){
+            if($this->hasMedia($fields["normal"])){
+                $this->processMedia($fields["normal"], $values_to_store, $item);
+            }
+        } else {
+            if($this->hasMedia($fields)){
+                $this->processMedia($fields, $values_to_store, $item);
+            }
         }
+        
 
         if ($translated_items) {
             $item->translations()->delete();
@@ -391,6 +398,8 @@ class CrudController extends BaseController
 
         $this->prepareFields($this->data['entry']);
 
+
+
         $this->data['crud'] = $this->crud;
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
@@ -443,8 +452,14 @@ class CrudController extends BaseController
         //Check if has Media option
         $fields = $this->getFields();
         $model = $model::find(\Request::input('id'));
-        if($this->hasMedia($fields["normal"])){
-            $this->processMedia($fields["normal"], $values_to_store, $model);
+        if(isset($fields["normal"])){
+            if($this->hasMedia($fields["normal"])){
+                $this->processMedia($fields["normal"], $values_to_store, $item);
+            }
+        } else {
+            if($this->hasMedia($fields)){
+                $this->processMedia($fields, $values_to_store, $item);
+            }
         }
 
         if ($translated_items) {
@@ -1041,8 +1056,14 @@ class CrudController extends BaseController
             $this->crud['fields'] = $proper_fields_array;
         }
 
+
+
         // if no field type is defined, assume the "text" field type
         foreach ($this->crud['fields'] as $k => $field) {
+            //Set label to proper Case
+            // if (! isset($this->crud['fields'][$k]['label'])) {
+            //     $this->crud['fields'][$k]['label'] = ucfirst($field['label']);
+            // }
             if (! isset($field['type'])) {
                 $this->crud['fields'][$k]['type'] = 'text';
             }
@@ -1114,8 +1135,15 @@ class CrudController extends BaseController
 
                 foreach ($fields as $k => $field) {
                     // set the value
+                    $this->crud['fields'][$k]['label'] = ucfirst($this->crud['fields'][$k]['label']);
                     if (! isset($this->crud['fields'][$k]['value'])) {
-                        $this->crud['fields'][$k]['value'] = $entry->$field['name'];
+
+                        if(!isset($field['entity'])){
+                            $this->crud['fields'][$k]['value'] = $entry->$field['name'];
+                        } else {
+                            $results = $entry->{$field['entity']}()->getResults( );
+                            $this->crud['fields'][$k]['value'] =  $results;
+                        }
                     }
                 }
 
