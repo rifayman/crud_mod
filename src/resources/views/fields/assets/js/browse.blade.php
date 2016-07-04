@@ -5,9 +5,9 @@
 
         uploadFile = function(url){
             $.fancybox({
-                width		: 950,
-                height	    : 500,
-                type		: 'iframe',
+                width       : 950,
+                height      : 500,
+                type        : 'iframe',
                 href        : url,
                 fitToView   : false,
                 autoScale   : false,
@@ -16,7 +16,6 @@
         };
 
         OnMessage = function(data){
-            console.log(data);
             var pattern = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|bmp))/i;
             if(data.appendId == null){
                 if(pattern.test(data.thumb)){

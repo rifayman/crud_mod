@@ -431,7 +431,7 @@ class CrudController extends BaseController
         $values_to_store = $this->hasFilesToUpload($values_to_store);
 
         $translated_items = false;
-        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
+        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true && isset($values_to_store['translate'])) {
             $translated_items = $values_to_store['translate'];
 
             foreach ($translated_items as $k => $langItems) {
@@ -456,11 +456,11 @@ class CrudController extends BaseController
         $model = $model::find(\Request::input('id'));
         if(isset($fields["normal"])){
             if($this->hasMedia($fields["normal"])){
-                $this->processMedia($fields["normal"], $values_to_store, $item);
+                $this->processMedia($fields["normal"], \Request::all(), $model);
             }
         } else {
             if($this->hasMedia($fields)){
-                $this->processMedia($fields, $values_to_store, $item);
+                $this->processMedia($fields, \Request::all(), $model);
             }
         }
 
@@ -1241,9 +1241,8 @@ class CrudController extends BaseController
             if(isset($field["usemedia"]) && $field["usemedia"] == true){
 
                 $name = $field["name"];
-                
-
                 $imagesMedia = $model->getMedia($name);
+                
                 $image = $values_to_store[$name];
                 $existe = false;
                 foreach($imagesMedia as $imageMedia){

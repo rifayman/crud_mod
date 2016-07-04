@@ -50,19 +50,26 @@
 
 @section('scripts')
 	<!-- FORM CONTENT JAVSCRIPT ASSETS -->
+	<?php
+        $fieldsScripts;
+        if(isset($crud['fields'])){
+            foreach($crud['fields'] as $field ){
+                if(view()->exists('vendor.infinety.crud.fields.assets.js.'.$field['type'] )){
+                    $fieldsScripts[ $field['type'] ][] = $field;
+                } elseif(view()->exists('crud::fields.assets.js.'.$field['type'])){
+                    $fieldsScripts[ $field['type'] ][] = $field;
+                }
+            }
+        }
+    ?>
+    @if(isset($fieldsScripts))
+        @foreach($fieldsScripts as $type => $typeFields)
+            @if (View::exists('vendor.infinety.crud.fields.assets.js.'.$type))
+                @include('vendor.infinety.crud.fields.assets.js.'.$type, ['fields' => $typeFields])
+            @elseif (View::exists('crud::fields.assets.js.'.$type))
+                @include('crud::fields.assets.js.'.$type, ['fields' => $typeFields])
+            @endif
+        @endforeach
+    @endif
 
-	@foreach ($crud['fields'] as $field )
-
-		@if(!isset($loaded_form_types_js[$field['type']]) || $loaded_form_types_js[$field['type']]==false)
-
-			@if (View::exists('crud::fields.assets.js.'.$field['type'], array('field' => $field)))
-				@include('crud::fields.assets.js.'.$field['type'], array('field' => $field))
-				<?php $loaded_form_types_js[$field['type']] = true; ?>
-			@elseif (View::exists('crud::fields.assets.js.'.$field['type'], array('field' => $field)))
-
-				@include('crud::fields.assets.js.'.$field['type'], array('field' => $field))
-				<?php $loaded_form_types_js[$field['type']] = true; ?>
-			@endif
-		@endif
-	@endforeach
 @endsection
