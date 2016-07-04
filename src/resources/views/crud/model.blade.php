@@ -38,6 +38,9 @@ class __Singular__ extends Model implements IsTranslatable, HasMediaConversions
         return $this->hasMany(\__storagePath____Singular__\Models\__Singular__Translation::class, '__plural___id', 'id');
     }
 
+    /**
+     * Media conversion by default
+     */
     public function registerMediaConversions()
     {
         $this->addMediaConversion('thumb')
