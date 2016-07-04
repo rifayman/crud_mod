@@ -8,15 +8,12 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Infinety\CRUD\Http\Requests\CrudRequest as StoreRequest;
 use Infinety\CRUD\Http\Requests\CrudRequest as UpdateRequest;
 use Jenssegers\Date\Date;
-
 use Notify;
-
 //use Infinety\CRUD\Models\Locale;
 use Storage;
 
@@ -42,12 +39,12 @@ class CrudController extends BaseController
                         'locale_column'         => 'locale',
                         ];
 
-    protected $locale; 
+    protected $locale;
 
     public function __construct()
     {
         $this->locale = config('infinety-crud.locale-model');
-        
+
         // If is multilanguage fill languages array with languages availables
         if (isset($this->crud['is_translate']) && $this->crud['is_translate'] == true) {
             $locales = new $this->locale;
@@ -157,7 +154,6 @@ class CrudController extends BaseController
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-
                         $results = $columnInfo->{$column['entity']}()->getResults();
                         $html = '-';
                         if ($results && $results->count()) {
@@ -175,6 +171,7 @@ class CrudController extends BaseController
                         if ($columnInfo->{$column['entity']}()->getResults()) {
                             $html = $columnInfo->{$column['entity']}()->getResults()->{$column['attribute']};
                         }
+
                         return $html;
                     });
             } elseif (isset($column['type']) && $column['type'] == 'model_function') {
@@ -193,15 +190,16 @@ class CrudController extends BaseController
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-                        if(isset($column["browse"]) && $column["browse"] != 'image'){
+                        if (isset($column['browse']) && $column['browse'] != 'image') {
                             return $columnInfo->content;
                         }
+
                         return "<img src='".asset($columnInfo->$column['name'])."' width='50%' />";
                     });
             } elseif (isset($column['type']) && isset($column['pivot']) && $column['pivot'] == true) {
                 $datatable
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-//                      dd($columnInfo);
+                        //                      dd($columnInfo);
 //                      dd($column); //["model"]
                         $pivotModel = $this->crud['model'];
                         $dataPivot = $column['model']::find($columnInfo[$column['entity']]);
@@ -223,7 +221,6 @@ class CrudController extends BaseController
                         }
 
                         return '';
-
                     });
             } else {
                 if (array_search('content', $columns)) {
@@ -287,9 +284,9 @@ class CrudController extends BaseController
         $values_to_store = $this->compactFakeFields(\Request::all());
 
         $values_to_store = $this->hasFilesToUpload($values_to_store);
-        
+
         $translated_items = false;
-        if(isset($values_to_store['translate'])){
+        if (isset($values_to_store['translate'])) {
             if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
                 $translated_items = $values_to_store['translate'];
 
@@ -305,24 +302,24 @@ class CrudController extends BaseController
         }
         $item = $model::create($values_to_store);
         $fields = $this->getFields();
-        
-        if(isset($fields["normal"])){
-            if($this->hasMedia($fields["normal"])){
-                $this->processMedia($fields["normal"], \Request::all(), $item);
+
+        if (isset($fields['normal'])) {
+            if ($this->hasMedia($fields['normal'])) {
+                $this->processMedia($fields['normal'], \Request::all(), $item);
             }
         } else {
-            if($this->hasMedia($fields)){
+            if ($this->hasMedia($fields)) {
                 $this->processMedia($fields, \Request::all(), $item);
             }
         }
-        
+
 
         if ($translated_items) {
             $item->translations()->delete();
 
             $modelTranslatable = $this->crud['model_translate'];
-            $models = array();
-            $valuesTranslated = array();
+            $models = [];
+            $valuesTranslated = [];
             foreach ($this->data['crud']['languages'] as $language) {
                 $table = new $model();
                 $table = $table->getTable();
@@ -340,14 +337,14 @@ class CrudController extends BaseController
                 $fields = $this->getFields();
                 $values = \Request::get('translate');
                 $valuesTrans = $values[$language[$this->crud['locale_id']]];
-                if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
-                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
+                if ($this->hasMedia($fields['translate'][$language[$this->crud['locale_id']]])) {
+                    $this->processMedia($fields['translate'][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
                 $count++;
             }
         }
 
-        
+
 
         // if it's a relationship with a pivot table, also sync that
         $this->prepareFields();
@@ -371,7 +368,6 @@ class CrudController extends BaseController
                 break;
         }
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -456,12 +452,12 @@ class CrudController extends BaseController
         //Check if has Media option
         $fields = $this->getFields();
         $model = $model::find(\Request::input('id'));
-        if(isset($fields["normal"])){
-            if($this->hasMedia($fields["normal"])){
-                $this->processMedia($fields["normal"], \Request::all(), $model);
+        if (isset($fields['normal'])) {
+            if ($this->hasMedia($fields['normal'])) {
+                $this->processMedia($fields['normal'], \Request::all(), $model);
             }
         } else {
-            if($this->hasMedia($fields)){
+            if ($this->hasMedia($fields)) {
                 $this->processMedia($fields, \Request::all(), $model);
             }
         }
@@ -469,8 +465,8 @@ class CrudController extends BaseController
         if ($translated_items) {
             $modelTranslatable = $this->crud['model_translate'];
 
-            $models = array();
-            $valuesTranslated = array();
+            $models = [];
+            $valuesTranslated = [];
 
             foreach ($this->data['crud']['languages'] as $language) {
                 $table = new $model();
@@ -479,7 +475,6 @@ class CrudController extends BaseController
                                             ->where($this->crud['locale_column'], $language[$this->crud['locale_id']])->first();
 
                 if ($exists) {
-                    
                     $translatedFields = $translated_items[$language[$this->crud['locale_id']]];
                     $valuesTranslated[] = $translatedFields;
 
@@ -488,9 +483,7 @@ class CrudController extends BaseController
                             ->update($translated_items[$language[$this->crud['locale_id']]]);
 
                     $models[] = $exists;
-
                 } else {
-
                     $itemInfo = [$table.'_id' => \Request::input('id'), $this->crud['locale_column'] => $language[$this->crud['locale_id']]];
 
                     $translatedFields = array_merge($itemInfo, $translated_items[$language[$this->crud['locale_id']]]);
@@ -507,13 +500,11 @@ class CrudController extends BaseController
                 $fields = $this->getFields();
                 $values = \Request::get('translate');
                 $valuesTrans = $values[$language[$this->crud['locale_id']]];
-                if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
-                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
+                if ($this->hasMedia($fields['translate'][$language[$this->crud['locale_id']]])) {
+                    $this->processMedia($fields['translate'][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
                 $count++;
             }
-
-
         }
 
         // if it's a relationship with a pivot table, also sync that
@@ -754,7 +745,6 @@ class CrudController extends BaseController
         // go through each defined field
 
         if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
-
             if (isset($this->crud['fields']['normal'])) {
                 foreach ($this->crud['fields']['normal'] as $k => $field) {
 
@@ -763,8 +753,6 @@ class CrudController extends BaseController
                         // add it to the request in its appropriate variable - the one defined, if defined
 
                         if (isset($field['store_in'])) {
-
-
                             if ($field['type'] == 'image' || $field['type'] == 'upload') {
                                 $file = \Request::file($field['name']);
                                 $request[$field['store_in']][$field['name']] = $file->getClientOriginalName();
@@ -778,8 +766,6 @@ class CrudController extends BaseController
                             if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, $field['store_in']);
                             }
-
-
                         } else {
                             //otherwise in the one defined in the $crud variable
 
@@ -841,16 +827,13 @@ class CrudController extends BaseController
                                 $request['translate'][$language['iso']][$value] = json_encode($request['translate'][$language['iso']][$value]);
                             }
                         }
-                        if(isset($request['translate'][$language['iso']][$value.'_trans']) && isset($request['translate'][$language['iso']][$value]) ){
+                        if (isset($request['translate'][$language['iso']][$value.'_trans']) && isset($request['translate'][$language['iso']][$value])) {
                             $request['translate'][$language['iso']][$value.'_trans'] = $request['translate'][$language['iso']][$value];
                             unset($request['translate'][$language['iso']][$value]);
                         }
-
                     }
                 }
-
             }
-            
         } else {
             foreach ($this->crud['fields'] as $k => $field) {
 
@@ -911,7 +894,7 @@ class CrudController extends BaseController
 
         $fake_field_columns_to_encode = [];
 
-        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true && isset($this->crud['fields']['translate']) ) {
+        if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true && isset($this->crud['fields']['translate'])) {
             foreach ($this->crud['fields']['translate'] as $k => $fieldArray) {
                 foreach ($fieldArray as $e => $field) {
                     // if it's a fake field
@@ -1148,12 +1131,11 @@ class CrudController extends BaseController
                     // set the value
                     $this->crud['fields'][$k]['label'] = ucfirst($this->crud['fields'][$k]['label']);
                     if (! isset($this->crud['fields'][$k]['value'])) {
-
-                        if(!isset($field['entity'])){
+                        if (! isset($field['entity'])) {
                             $this->crud['fields'][$k]['value'] = $entry->$field['name'];
                         } else {
-                            $results = $entry->{$field['entity']}()->getResults( );
-                            $this->crud['fields'][$k]['value'] =  $results;
+                            $results = $entry->{$field['entity']}()->getResults();
+                            $this->crud['fields'][$k]['value'] = $results;
                         }
                     }
                 }
@@ -1214,58 +1196,54 @@ class CrudController extends BaseController
         }
     }
 
-   
-   /**
-    * Check if crud has media attribute
-    * 
-    * @return boolean
-    */
-    private function hasMedia($fields){
-
-        foreach($fields as $k => $field){
-            if(isset($field["usemedia"]) && $field["usemedia"] == true){
+    /**
+     * Check if crud has media attribute.
+     *
+     * @return bool
+     */
+    private function hasMedia($fields)
+    {
+        foreach ($fields as $k => $field) {
+            if (isset($field['usemedia']) && $field['usemedia'] == true) {
                 return true;
             }
         }
+
         return false;
     }
 
-
-    
     /**
-     * Process media images. Remember to create a Listener to save model when queue ends
-     * 
+     * Process media images. Remember to create a Listener to save model when queue ends.
+     *
      * @param  array
      * @param  array
      * @param  Eloquent Model
      */
-    public function processMedia($fields, $values_to_store, $model){
-        
-        foreach($fields as $k => $field){
-            if(isset($field["usemedia"]) && $field["usemedia"] == true){
-
-                $name = $field["name"];
+    public function processMedia($fields, $values_to_store, $model)
+    {
+        foreach ($fields as $k => $field) {
+            if (isset($field['usemedia']) && $field['usemedia'] == true) {
+                $name = $field['name'];
                 $imagesMedia = $model->getMedia($name);
-                
+
                 $image = $values_to_store[$name];
 
                 $existe = false;
-                foreach($imagesMedia as $imageMedia){
-                    if(asset($imageMedia->getUrl()) === $image){
+                foreach ($imagesMedia as $imageMedia) {
+                    if (asset($imageMedia->getUrl()) === $image) {
                         $existe = true;
                     }
-                }         
-                if($existe == false){
-                    if (filter_var($image, FILTER_VALIDATE_URL) != FALSE) {
+                }
+                if ($existe == false) {
+                    if (filter_var($image, FILTER_VALIDATE_URL) != false) {
                         $model->addMediaFromUrl($image)
                             ->preservingOriginal()
                             ->withCustomProperties(['setModel' => true])
                             ->toCollection($name);
                     }
-                    
                 }
-                
-                //IMPORTANT -> Image will be add to model by MediaLogger event    
+
+                //IMPORTANT -> Image will be add to model by MediaLogger event
             }
         }
     }
@@ -1345,7 +1323,7 @@ class CrudController extends BaseController
     {
         if ($checkExistsFile && isset($field['value'])) {
             if (Storage::disk('upload')->exists($field['value'])) {
-//                $file = str_replace('ficha_tecnica/', '', $field['value']);
+                //                $file = str_replace('ficha_tecnica/', '', $field['value']);
                 $mime = Storage::disk('upload')->getMetaData($field['value']); //For if is a directory. Only for files
                 if ($mime['type'] == 'file') {
                     Storage::disk('upload')->delete($field['value']);

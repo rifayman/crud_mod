@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use Log;
 use Spatie\MediaLibrary\Events\MediaHasBeenAdded;
 
 class MediaLogger
@@ -17,17 +16,17 @@ class MediaLogger
      */
     public function handle(MediaHasBeenAdded $events)
     {
-        foreach($events as $event){
+        foreach ($events as $event) {
             $model = app($event->model_type)->find($event->model_id);
             $image = $event->getUrl();
             $convert = $event->getCustomProperty('setModel', false);
-            if($convert){
+            if ($convert) {
                 $collection = $event->collection_name;
-                if(isset($model->$collection)){
+                if (isset($model->$collection)) {
                     $model->$collection = asset($image);
                     $model->save();
                 }
-            }            
+            }
         }
     }
 }

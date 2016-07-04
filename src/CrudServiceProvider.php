@@ -7,17 +7,14 @@ use Illuminate\Support\ServiceProvider;
 use Route;
 use Storage;
 use Illuminate\Console\AppNamespaceDetectorTrait;
-
 use Infinety\CRUD\Commands\CrudCreatorHelper;
 use Infinety\CRUD\Commands\CrudCreatorHelperInline;
 use Infinety\CRUD\Commands\CrudInstaller;
 
-
 class CrudServiceProvider extends ServiceProvider
 {
-
     use AppNamespaceDetectorTrait;
-    
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -35,7 +32,7 @@ class CrudServiceProvider extends ServiceProvider
         // use this if your package has views
         $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'crud');
 
-         /**
+         /*
          * Publish Layout view
          */
         $this->publishes([
@@ -53,28 +50,28 @@ class CrudServiceProvider extends ServiceProvider
         // use this if your package has routes
         $this->setupRoutes($this->app->router);
 
-        /**
+        /*
          * Config File
          */
         $this->publishes([
              __DIR__.'/../config/infinety-crud.php' => config_path('infinety-crud.php'),
         ], 'config');
 
-        /**
+        /*
          * Migrations
          */
         $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('migrations')
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
         ], 'migrations');
 
-        /**
+        /*
          * Migrations
          */
         $this->publishes([
-            __DIR__.'/../database/seeds/' => database_path('seeds')
+            __DIR__.'/../database/seeds/' => database_path('seeds'),
         ], 'seeds');
 
-        /**
+        /*
          * Translations
          */
         $this->publishes([
@@ -97,9 +94,8 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function setupRoutes(Router $router)
     {
-
         $crudFolder = config('filesystems.disks.crud.root');
-        $path = str_replace(app_path()."/", '', $crudFolder);
+        $path = str_replace(app_path().'/', '', $crudFolder);
         $namespace = $this->getAppNamespace().$path;
 
         $router->group([
@@ -107,16 +103,15 @@ class CrudServiceProvider extends ServiceProvider
         ], function ($router) {
             //Autoload route files
             $files = Storage::disk('crud')->allFiles('Routes2Include');
-            foreach($files as $file){
-                if(str_contains($file, 'Routes')){
+            foreach ($files as $file) {
+                if (str_contains($file, 'Routes')) {
                     $fileSt = app_path($file);
                     $crudFolder = config('filesystems.disks.crud.root');
-                    $path = str_replace(app_path()."/", '', $crudFolder);
+                    $path = str_replace(app_path().'/', '', $crudFolder);
                     require app_path($path.DIRECTORY_SEPARATOR.$file);
                 }
             }
         });
-
     }
 
     /**
@@ -135,7 +130,7 @@ class CrudServiceProvider extends ServiceProvider
         $this->app->register('Jleon\LaravelPnotify\NotifyServiceProvider');
         $this->app->register('Jenssegers\Date\DateServiceProvider');
         $this->app->register('Spatie\MediaLibrary\MediaLibraryServiceProvider');
-        
+
         // Register dependancy aliases
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('Html', 'Collective\Html\HtmlFacade');
