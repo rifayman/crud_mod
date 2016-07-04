@@ -308,11 +308,11 @@ class CrudController extends BaseController
         
         if(isset($fields["normal"])){
             if($this->hasMedia($fields["normal"])){
-                $this->processMedia($fields["normal"], $values_to_store, $item);
+                $this->processMedia($fields["normal"], \Request::all(), $item);
             }
         } else {
             if($this->hasMedia($fields)){
-                $this->processMedia($fields, $values_to_store, $item);
+                $this->processMedia($fields, \Request::all(), $item);
             }
         }
         
@@ -338,8 +338,10 @@ class CrudController extends BaseController
             $count = 0;
             foreach ($this->data['crud']['languages'] as $language) {
                 $fields = $this->getFields();
+                $values = \Request::get('translate');
+                $valuesTrans = $values[$language[$this->crud['locale_id']]];
                 if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
-                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTranslated[$count], $models[$count]);
+                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
                 $count++;
             }
@@ -503,8 +505,10 @@ class CrudController extends BaseController
             $count = 0;
             foreach ($this->data['crud']['languages'] as $language) {
                 $fields = $this->getFields();
+                $values = \Request::get('translate');
+                $valuesTrans = $values[$language[$this->crud['locale_id']]];
                 if($this->hasMedia($fields["translate"][$language[$this->crud['locale_id']]])){
-                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTranslated[$count], $models[$count]);
+                    $this->processMedia($fields["translate"][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
                 $count++;
             }
@@ -1244,6 +1248,7 @@ class CrudController extends BaseController
                 $imagesMedia = $model->getMedia($name);
                 
                 $image = $values_to_store[$name];
+
                 $existe = false;
                 foreach($imagesMedia as $imageMedia){
                     if(asset($imageMedia->getUrl()) === $image){
@@ -1251,11 +1256,13 @@ class CrudController extends BaseController
                     }
                 }         
                 if($existe == false){
-                    $model->clearMediaCollection($name);
-                    $model->addMediaFromUrl($image)
-                          ->preservingOriginal()
-                          ->withCustomProperties(['setModel' => true])
-                          ->toCollection($name);
+                    if (filter_var($image, FILTER_VALIDATE_URL) != FALSE) {
+                        $model->addMediaFromUrl($image)
+                            ->preservingOriginal()
+                            ->withCustomProperties(['setModel' => true])
+                            ->toCollection($name);
+                    }
+                    
                 }
                 
                 //IMPORTANT -> Image will be add to model by MediaLogger event    
