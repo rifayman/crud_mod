@@ -11,7 +11,7 @@
 				@foreach($fieldsArray as $fieldLang)
 				jQuery(document).ready(function($) {
 					$('#redactor-{{$fieldLang["name"]}}-{{$lang}}').redactor({
-						minHeight: 350,
+						minHeight: {{ (isset($fieldLang["height"]) ? $fieldLang["height"] : 350) }},
 						maxHeight: 800,
 						cleanOnPaste: true,
 						cleanSpaces: true,
@@ -28,7 +28,7 @@
 		@else
 			jQuery(document).ready(function($) {
 				$('#redactor-{{$field["name"]}}').redactor({
-					minHeight: 350,
+					minHeight: {{ (isset($fieldLang["height"]) ? $fieldLang["height"] : 350) }},
 					maxHeight: 800,
 					cleanOnPaste: true,
 					cleanSpaces: true,
