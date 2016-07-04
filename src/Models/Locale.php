@@ -1,10 +1,12 @@
-<?php namespace Infinety\CRUD\Models;
+<?php
+
+namespace Infinety\CRUD\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Infinety\CRUD\CrudTrait;
 
-
-class Locale extends Model {
+class Locale extends Model
+{
     use CrudTrait;
     /**
      * The database table used by the model.
@@ -17,17 +19,15 @@ class Locale extends Model {
      *
      * @var array
      */
-    protected $fillable = ['language','iso','state'];
-
+    protected $fillable = ['language', 'iso', 'state'];
 
     /**
-     * Return Availables locales
+     * Return Availables locales.
      *
      * @return mixed
      */
-    public function getAvailables(){
-
+    public function getAvailables()
+    {
         return $this->where('state', 1)->get();
     }
-
 }

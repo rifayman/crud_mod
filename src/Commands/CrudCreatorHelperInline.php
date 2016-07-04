@@ -3,10 +3,7 @@
 namespace Infinety\CRUD\Commands;
 
 use Illuminate\Console\Command;
-
 use Storage;
-
-use Carbon\Carbon;
 
 class CrudCreatorHelperInline extends Command
 {
@@ -47,7 +44,6 @@ class CrudCreatorHelperInline extends Command
     protected $fields;
     */
 
-
     /**
      * Create a new command instance.
      *
@@ -64,70 +60,69 @@ class CrudCreatorHelperInline extends Command
      * @return mixed
      */
     public function handle()
-    {   
-        /**
+    {
+        /*
          * Define Data Container
          */
-        $this->crud = array();
+        $this->crud = [];
 
-        /**
+        /*
          * Get StoragePath
          */
         $this->getStoragePath();
 
-        /**
+        /*
          * Get DashBoard Path
          */
         $this->getDashBoardPath();
 
-        /**
+        /*
          * Collect Data
          */
         $this->collectData();
 
-        /**
+        /*
          * Make Controller
          */
         $this->makeController();
 
-        /**
+        /*
          * Make Routes File
          */
         $this->makeRoutes();
-        
-                
-        /**
+
+
+        /*
          * Make Model
          */
         $this->makeModel();
 
-        /**
+        /*
          * Make Model Translation
          */
         $this->makeModelTranslation();
 
-        /**
+        /*
          * Make Migration
          */
         $this->makeMigration();
-             
     }
 
     /**
-     * GetStoragePath
+     * GetStoragePath.
      */
     private function getStoragePath()
     {
         $path = config('filesystems.disks.crud.root');
-        $this->crud['storagePath'] = str_replace(base_path()."/", '',  $path);
-        $this->crud['storagePath'] = str_replace("/", '\\',  $this->crud['storagePath']);
+        $this->crud['storagePath'] = str_replace(base_path().'/', '', $path);
+        $this->crud['storagePath'] = str_replace('/', '\\', $this->crud['storagePath']);
         $this->crud['storagePath'] = ucfirst($this->crud['storagePath']).'\\';
         //dump($this->crud);
         //dd();
     }
 
     /**
-     * getDashBoardPath
+     * getDashBoardPath.
      */
     private function getDashBoardPath()
     {
@@ -138,10 +133,10 @@ class CrudCreatorHelperInline extends Command
     }
 
     /**
-     * Collect Data Funnction
+     * Collect Data Funnction.
      */
     private function collectData()
-    {   
+    {
         /*
         $this->info('--------------------------------');
         $this->info(' Infinety Crud Helper');
@@ -152,44 +147,39 @@ class CrudCreatorHelperInline extends Command
         $this->crud['singular'] = $this->option('singular');
         //$this->crud['singular'] = 'elefante';
         $this->crud['Singular'] = ucfirst($this->crud['singular']);
-        
+
         // Plural crud element
         $this->crud['plural'] = $this->option('plural');
         //$this->crud['plural'] = 'elefantes';
         $this->crud['Plural'] = ucfirst($this->crud['plural']);
-        
+
         // Translatable
         $this->crud['translatable'] = $this->option('translatable');
 
-        /**
+        /*
          * Fields for model
          */
-        
 
-        if ( $this->option('fields') ) {
 
+        if ($this->option('fields')) {
             $newField = true;
             $fieldNumber = 0;
 
 
 
             $this->fields_array_temp = explode(',', $this->option('fields'));
-            
-            
-            foreach ($this->fields_array_temp as $field ) {
-                
-                $field_parts = explode("|", $field );
+
+
+            foreach ($this->fields_array_temp as $field) {
+                $field_parts = explode('|', $field);
 
                 $this->fields_array[$fieldNumber]['name'] = $field_parts[0];
                 $this->fields_array[$fieldNumber]['type'] = $field_parts[1];
 
-                if ( $this->crud['translatable'] == 'true' ) {
-                    
+                if ($this->crud['translatable'] == 'true') {
                     $this->fields_array[$fieldNumber]['translatable'] = $field_parts[2];
-                    
                 }
                 $fieldNumber++;
-            
             }
 
             $this->generateColumnsAndFields();
@@ -197,23 +187,20 @@ class CrudCreatorHelperInline extends Command
             $this->generateTableFields();
 
             $this->generateModelFields();
-            
-            
         }
         /*
         dump($this->crud);
         dump($this->fields_array_temp);
         dump($this->fields_array);
         */
-
     }
 
     /**
-     * Make Controller function
+     * Make Controller function.
      */
     private function makeController()
     {
-        // Get Controller 
+        // Get Controller
         $controller = $this->getTemplate('controller');
         // Replace strings in Controller
         $controller = $this->replaceStrings($controller);
@@ -222,11 +209,11 @@ class CrudCreatorHelperInline extends Command
     }
 
     /**
-     * Make Routes function
+     * Make Routes function.
      */
     private function makeRoutes()
     {
-        // Get Route 
+        // Get Route
         $routes = $this->getTemplate('routes');
         // Replace strings in Controller
         $routes = $this->replaceStrings($routes);
@@ -235,11 +222,11 @@ class CrudCreatorHelperInline extends Command
     }
 
     /**
-     * Make Model
+     * Make Model.
      */
     private function makeModel()
     {
-        // Get Model 
+        // Get Model
         $model = $this->getTemplate('model');
         // Replace strings in Model
         $model = $this->replaceStrings($model);
@@ -248,7 +235,7 @@ class CrudCreatorHelperInline extends Command
     }
 
     /**
-     * Make Model Translation
+     * Make Model Translation.
      */
     private function makeModelTranslation()
     {
@@ -261,71 +248,67 @@ class CrudCreatorHelperInline extends Command
     }
 
     /**
-     * Make Migration
+     * Make Migration.
      */
     private function makeMigration()
     {
-        // Get Migration 
+        // Get Migration
         $migration = $this->getTemplate('migration');
         // Replace strings in Migration
         $migration = $this->replaceStrings($migration);
         // Store Migration
         $migration_name = date('Y_m_d_His').'_create_'.$this->crud['singular'].'_table.php';
         // Creation of Migration File
-        Storage::put('/CrudMigrations/'.$migration_name , $migration);
-        // Move Migration File to migraons Folder        
-        rename( storage_path('app').'/CrudMigrations/'.$migration_name , database_path('migrations').'/'.$migration_name );
-        
-        if ($this->option('migrate') == 'true') {
-            
-            $exitCode = $this->call('migrate');
+        Storage::put('/CrudMigrations/'.$migration_name, $migration);
+        // Move Migration File to migraons Folder
+        rename(storage_path('app').'/CrudMigrations/'.$migration_name, database_path('migrations').'/'.$migration_name);
 
+        if ($this->option('migrate') == 'true') {
+            $exitCode = $this->call('migrate');
         }
     }
 
     /**
-     * Get Template file
+     * Get Template file.
      */
-    private function getTemplate($name){
-        
-        $path = base_path('vendor/infinety-es/crud/src/resources/views/crud/'.$name.".blade.php");
+    private function getTemplate($name)
+    {
+        $path = base_path('vendor/infinety-es/crud/src/resources/views/crud/'.$name.'.blade.php');
 
-        if(file_exists($path)){
+        if (file_exists($path)) {
             return file_get_contents($path);
         } else {
             return false;
         }
-
     }
 
     /**
-     * Replace string in template files
+     * Replace string in template files.
      */
-    private function replaceStrings($file){
-        foreach($this->crud as $key => $value){
+    private function replaceStrings($file)
+    {
+        foreach ($this->crud as $key => $value) {
             $file = str_replace('__'.$key.'__', $value, $file);
         }
-        return $file;
 
+        return $file;
     }
 
     /**
-     * GenerateColumnsAndFields
+     * GenerateColumnsAndFields.
      */
     private function generateColumnsAndFields()
     {
         $fieldsToFill = $this->fields_array;
-        $this->crud['columns'] = (string)view('crud::crud.columns', compact( 'fieldsToFill' ))->render();
-        $this->crud['fields'] = (string)view('crud::crud.fields', compact( 'fieldsToFill' ))->render();
-        
-
+        $this->crud['columns'] = (string) view('crud::crud.columns', compact('fieldsToFill'))->render();
+        $this->crud['fields'] = (string) view('crud::crud.fields', compact('fieldsToFill'))->render();
     }
+
     /**
-     * GenerateTableFields
+     * GenerateTableFields.
      */
     private function generateTableFields()
     {
-
         $field_equivalence = [
             'checkbox'          => 'boolean',
             'colorpicker'       => 'string',
@@ -350,28 +333,25 @@ class CrudCreatorHelperInline extends Command
         ];
 
         $fieldsToFill = $this->fields_array;
-        $this->crud['migration_fields'] = (string)view('crud::crud.migration_fields', compact( 'fieldsToFill','field_equivalence' ))->render();
-        $this->crud['migration_translatable_fields'] = (string)view('crud::crud.migration_translatable_fields', compact( 'fieldsToFill','field_equivalence' ))->render();
-        
-
+        $this->crud['migration_fields'] = (string) view('crud::crud.migration_fields', compact('fieldsToFill', 'field_equivalence'))->render();
+        $this->crud['migration_translatable_fields'] = (string) view('crud::crud.migration_translatable_fields', compact('fieldsToFill', 'field_equivalence'))->render();
     }
 
     /**
-     * GenerateTableFields
+     * GenerateTableFields.
      */
     private function generateModelFields()
     {
-
         $fieldsToFill = $this->fields_array;
 
         //dump($fieldsToFill);
 
-        $this->crud['model_fillable'] = (string)view('crud::crud.model_fillable', compact( 'fieldsToFill' ))->render();
+        $this->crud['model_fillable'] = (string) view('crud::crud.model_fillable', compact('fieldsToFill'))->render();
         //$this->crud['model_fillable'] = str_replace(" ","",$this->crud['model_fillable']);
 
-        $this->crud['model_translatable_fillable'] = (string)view('crud::crud.model_translatable_fillable', compact( 'fieldsToFill'))->render();
+        $this->crud['model_translatable_fillable'] = (string) view('crud::crud.model_translatable_fillable', compact('fieldsToFill'))->render();
         //$this->crud['model_translatable_fillable'] = str_replace(" ","",$this->crud['model_translatable_fillable']);
-        
+
         //dump($this->crud);
         //dd();
     }

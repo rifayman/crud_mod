@@ -17,7 +17,7 @@ class CreateLocaleTable extends Migration
             $table->string('language');
             $table->string('iso', 2);
             $table->boolean('state')->default(0);
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

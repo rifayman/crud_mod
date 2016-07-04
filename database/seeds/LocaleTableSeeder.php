@@ -13,14 +13,14 @@ class LocaleTableSeeder extends Seeder
     public function run()
     {
         $locale = new Locale();
-        $locale->language = "Español";
-        $locale->iso = "es";
+        $locale->language = 'Español';
+        $locale->iso = 'es';
         $locale->state = 1;
         $locale->save();
 
         $locale = new Locale();
-        $locale->language = "English";
-        $locale->iso = "en";
+        $locale->language = 'English';
+        $locale->iso = 'en';
         $locale->state = 1;
         $locale->save();
     }
