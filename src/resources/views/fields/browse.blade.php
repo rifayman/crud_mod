@@ -1,7 +1,7 @@
 
 
     @if(!isset($field["browse"]) || $field["browse"] == 'image')
-    <img class="output {{ (isset($field["value"]) &&  !empty($field["value"])) ? '' : 'hide' }}" src="{{ (isset($field["value"]) &&  !empty($field["value"])) ? $field["value"] : '' }}" width="20%" height="5%" id="{{ $field['name'] }}">
+    <img class="output {{ (isset($field["value"]) &&  !empty($field["value"])) ? '' : 'hide' }}" src="{{ (isset($field["value"]) &&  !empty($field["value"])) ? $field["value"] : '' }}" width="20%" height="5%" id="{{ $field['name'] }}{{ (isset($language)) ? '-'.$language["iso"] : '' }}">
 	@endif
 
     <div class="form-group form-group-default input-group">
