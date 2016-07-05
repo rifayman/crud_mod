@@ -1236,6 +1236,10 @@ class CrudController extends BaseController
                 }
                 if ($existe == false) {
                     if (filter_var($image, FILTER_VALIDATE_URL) != false) {
+                        //Clean old media files
+                        $model->clearMediaCollection($name);
+
+                        //Process new file
                         $model->addMediaFromUrl($image)
                             ->preservingOriginal()
                             ->withCustomProperties(['setModel' => true])
