@@ -349,7 +349,7 @@ class CrudController extends BaseController
         // if it's a relationship with a pivot table, also sync that
         $this->prepareFields();
         foreach ($this->crud['fields'] as $k => $field) {
-            if (isset($field['pivot']) && $field['pivot'] == true && \Request::input($field['name'] != 0)) {
+            if (isset($field['pivot']) && $field['pivot'] == true ) { //&& \Request::input($field['name'] != 0)
                 $model::find($item->id)->$field['name']()->attach(\Request::input($field['name']));
             }
         }
