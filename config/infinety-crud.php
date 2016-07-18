@@ -13,4 +13,6 @@ return [
 
     'crud-route-prefix'    => 'admin',
 
+    "assets_folder"	=>	"admin_theme", //Admin public assets folder
+
 ];

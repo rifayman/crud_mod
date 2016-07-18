@@ -1,4 +1,8 @@
-<script src="{{ asset('admin_theme/assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js') }}"></script>
+<?php
+	$assets_url = config('infinety-crud.assets_folder', 'admin_theme');
+?>
+
+<script src="{{ asset($assets_url.'/assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js') }}"></script>
 
 <script type="text/javascript">
 	
