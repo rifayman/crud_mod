@@ -23,20 +23,20 @@ class CrudController extends BaseController
 
     public $data = [];
     public $crud = [
-                        'model'                 => "\App\Models\Entity",
-                        'entity_name'           => 'entry',
-                        'entity_name_plural'    => 'entries',
-                        'ajax_load'             => false,
+                        'model' => "\App\Models\Entity",
+                        'entity_name' => 'entry',
+                        'entity_name_plural' => 'entries',
+                        'ajax_load' => false,
                         'view_table_permission' => true,
-                        'add_permission'        => true,
-                        'edit_permission'       => true,
-                        'delete_permission'     => true,
-                        'reorder_permission'    => true,
-                        'reorder_max_level'     => 3,
-                        'details_row'           => false,
-                        'is_translate'          => false,
-                        'locale_id'             => 'iso',
-                        'locale_column'         => 'locale',
+                        'add_permission' => true,
+                        'edit_permission' => true,
+                        'delete_permission' => true,
+                        'reorder_permission' => true,
+                        'reorder_max_level' => 3,
+                        'details_row' => false,
+                        'is_translate' => false,
+                        'locale_id' => 'iso',
+                        'locale_column' => 'locale',
                         ];
 
     protected $locale;
@@ -47,11 +47,11 @@ class CrudController extends BaseController
 
         // If is multilanguage fill languages array with languages availables
         if (isset($this->crud['is_translate']) && $this->crud['is_translate'] == true) {
-            $locales = new $this->locale;
+            $locales = new $this->locale();
             $this->crud['languages'] = $locales->getAvailables()->toArray();
         }
 
-        if (! isset($this->crud['locale_id'])) {
+        if (!isset($this->crud['locale_id'])) {
             $this->crud['locale_id'] = 'iso';
             $this->crud['locale_column'] = 'locale';
         }
@@ -69,7 +69,7 @@ class CrudController extends BaseController
 
         // SECURITY:
         // if view_table_permission is false, abort
-        if (isset($this->crud['view_table_permission']) && ! $this->crud['view_table_permission']) {
+        if (isset($this->crud['view_table_permission']) && !$this->crud['view_table_permission']) {
             abort(403, 'Not allowed.');
         }
 
@@ -104,7 +104,7 @@ class CrudController extends BaseController
     {
         // SECURITY:
         // if add_permission is false, abort
-        if (isset($this->crud['add_permission']) && ! $this->crud['add_permission']) {
+        if (isset($this->crud['add_permission']) && !$this->crud['add_permission']) {
             abort(403, 'Not allowed.');
         }
 
@@ -117,7 +117,6 @@ class CrudController extends BaseController
         // prepare the fields you need to show
         $this->prepareFields();
         $this->data['crud'] = $this->crud;
-
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
         return $this->firstViewThatExists('vendor.infinety.crud.create', 'crud::create', $this->data);
@@ -184,7 +183,7 @@ class CrudController extends BaseController
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-                        return "<img src='".asset($columnInfo->$column['name'])."' width='50%' />";
+                        return "<img src='".asset($columnInfo->{$column['name']})."' width='50%' />";
                     });
             } elseif (isset($column['type']) && $column['type'] == 'browse') {
                 $datatable
@@ -194,7 +193,7 @@ class CrudController extends BaseController
                             return $columnInfo->content;
                         }
 
-                        return "<img src='".asset($columnInfo->$column['name'])."' width='50%' />";
+                        return "<img src='".asset($columnInfo->{$column['name']})."' width='50%' />";
                     });
             } elseif (isset($column['type']) && isset($column['pivot']) && $column['pivot'] == true) {
                 $datatable
@@ -211,11 +210,11 @@ class CrudController extends BaseController
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
-                        if ($columnInfo->$column['name'] != null) {
+                        if ($columnInfo->{$column['name']} != null) {
                             $locale = (isset($column['language'])) ? $column['language'] : 'en';
                             $format = (isset($column['format'])) ? $column['format'] : 'Y-m-d';
                             Date::setLocale($locale);
-                            $date = Date::parse($columnInfo->$column['name']);
+                            $date = Date::parse($columnInfo->{$column['name']});
 
                             return $date->format($format);
                         }
@@ -231,29 +230,29 @@ class CrudController extends BaseController
                 } else {
                     $datatable
                         ->editColumn($column['name'], function ($columnInfo) use ($column) {
-                            if (trim($columnInfo->$column['name']) == '') {
+                            if (trim($columnInfo->{$column['name']}) == '') {
                                 if (isset($this->crud['is_translate']) && $this->crud['is_translate'] == true) {
                                     if ($columnInfo->translate()) {
-                                        $columnInfo->$column['name'] = $columnInfo->$column['name'];
+                                        $columnInfo->{$column['name']} = $columnInfo->{$column['name']};
                                     }
                                 }
                             }
 
-                            return str_limit(strip_tags($columnInfo->$column['name']), 80, '[...]');
+                            return str_limit(strip_tags($columnInfo->{$column['name']}), 80, '[...]');
                         });
                 }
             }
         }
 
-        if (! (isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false)) {
+        if (!(isset($crud['edit_permission']) && $crud['edit_permission'] === false && isset($crud['delete_permission']) && $crud['delete_permission'] === false)) {
             $datatable
                 ->addColumn('actions', '')
                 ->editColumn('actions', function ($column) {
                     $html = '';
-                    if (! (isset($crud['edit_permission']) && ! $crud['edit_permission'])) {
+                    if (!(isset($crud['edit_permission']) && !$crud['edit_permission'])) {
                         $html .= '<a href="'.url($this->crud['route']).'/'.$column->id.'/edit" class="btn btn-xs btn-complete "><i class="fa fa-edit p-r-10"></i>'._(trans('crud.edit')).'</a>';
                     }
-                    if (! (isset($crud['delete_permission']) && ! $crud['delete_permission'])) {
+                    if (!(isset($crud['delete_permission']) && !$crud['delete_permission'])) {
                         $html .= '<a href="'.url($this->crud['route']).'/'.$column->id.'" class="btn btn-xs btn-danger m-l-5" data-button-type="delete"><i class="fa fa-trash p-r-10 "></i>'._(trans('crud.delete')).'</a>';
                     }
 
@@ -274,7 +273,7 @@ class CrudController extends BaseController
 
         // SECURITY:
         // if add_permission is false, abort
-        if (isset($this->crud['add_permission']) && ! $this->crud['add_permission']) {
+        if (isset($this->crud['add_permission']) && !$this->crud['add_permission']) {
             abort(403, 'Not allowed.');
         }
 
@@ -313,7 +312,6 @@ class CrudController extends BaseController
             }
         }
 
-
         if ($translated_items) {
             $item->translations()->delete();
 
@@ -340,16 +338,14 @@ class CrudController extends BaseController
                 if ($this->hasMedia($fields['translate'][$language[$this->crud['locale_id']]])) {
                     $this->processMedia($fields['translate'][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
-                $count++;
+                ++$count;
             }
         }
-
-
 
         // if it's a relationship with a pivot table, also sync that
         $this->prepareFields();
         foreach ($this->crud['fields'] as $k => $field) {
-            if (isset($field['pivot']) && $field['pivot'] == true ) { //&& \Request::input($field['name'] != 0)
+            if (isset($field['pivot']) && $field['pivot'] == true) { //&& \Request::input($field['name'] != 0)
                 $model::find($item->id)->$field['name']()->attach(\Request::input($field['name']));
             }
         }
@@ -380,7 +376,7 @@ class CrudController extends BaseController
     {
         // SECURITY:
         // if edit_permission is false, abort
-        if (isset($this->crud['edit_permission']) && ! $this->crud['edit_permission']) {
+        if (isset($this->crud['edit_permission']) && !$this->crud['edit_permission']) {
             abort(403, 'Not allowed.');
         }
 
@@ -398,8 +394,6 @@ class CrudController extends BaseController
 
         $this->prepareFields($this->data['entry']);
 
-
-
         $this->data['crud'] = $this->crud;
 
         // load the view from /resources/views/vendor/dick/crud/ if it exists, otherwise load the one in the package
@@ -416,7 +410,7 @@ class CrudController extends BaseController
     public function updateCrud(UpdateRequest $request = null)
     {
         // if edit_permission is false, abort
-        if (isset($this->crud['edit_permission']) && ! $this->crud['edit_permission']) {
+        if (isset($this->crud['edit_permission']) && !$this->crud['edit_permission']) {
             abort(403, 'Not allowed.');
         }
 
@@ -503,7 +497,7 @@ class CrudController extends BaseController
                 if ($this->hasMedia($fields['translate'][$language[$this->crud['locale_id']]])) {
                     $this->processMedia($fields['translate'][$language[$this->crud['locale_id']]], $valuesTrans, $models[$count]);
                 }
-                $count++;
+                ++$count;
             }
         }
 
@@ -554,7 +548,7 @@ class CrudController extends BaseController
     {
         // SECURITY:
         // if delete_permission is false, abort
-        if (isset($this->crud['delete_permission']) && ! $this->crud['delete_permission']) {
+        if (isset($this->crud['delete_permission']) && !$this->crud['delete_permission']) {
             //abort(403, trans('crud.unauthorized_access'));
         }
 
@@ -627,7 +621,7 @@ class CrudController extends BaseController
                     $item->rgt = $entry['right'];
                     $item->save();
 
-                    $count++;
+                    ++$count;
                 }
             }
         } else {
@@ -760,10 +754,9 @@ class CrudController extends BaseController
                                 $request[$field['store_in']][$field['name']] = $request[$field['name']];
                             }
 
-
                             $remove_fake_field = array_pull($request, $field['name']);
 
-                            if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
+                            if (!in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, $field['store_in']);
                             }
                         } else {
@@ -777,7 +770,7 @@ class CrudController extends BaseController
                             }
                             $remove_fake_field = array_pull($request, $field['name']);
 
-                            if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                            if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, 'extras');
                             }
                         }
@@ -805,7 +798,7 @@ class CrudController extends BaseController
 
                                 $remove_fake_field = array_pull($request['translate'][$language['iso']], $field['name']);
 
-                                if (! in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
+                                if (!in_array($field['store_in'], $fake_field_columns_to_encode, true)) {
                                     array_push($fake_field_columns_to_encode, $field['store_in']);
                                 }
                             } else {
@@ -814,7 +807,7 @@ class CrudController extends BaseController
                                 $request['extras'][$field['name']] = $request[$field['name']];
 
                                 $remove_fake_field = array_pull($request, $field['name']);
-                                if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                                if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                                     array_push($fake_field_columns_to_encode, 'extras');
                                 }
                             }
@@ -850,7 +843,7 @@ class CrudController extends BaseController
 
                         $remove_fake_field = array_pull($request, $this->crud['fields'][$k]['name']);
 
-                        if (! in_array($this->crud['fields'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
+                        if (!in_array($this->crud['fields'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
                             array_push($fake_field_columns_to_encode, $this->crud['fields'][$k]['store_in']);
                         }
                     } else {
@@ -864,7 +857,7 @@ class CrudController extends BaseController
                         }
 
                         $remove_fake_field = array_pull($request, $this->crud['fields'][$k]['name']);
-                        if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                        if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                             array_push($fake_field_columns_to_encode, 'extras');
                         }
                     }
@@ -902,13 +895,13 @@ class CrudController extends BaseController
                         // add it to the request in its appropriate variable - the one defined, if defined
 
                         if (isset($this->crud['fields']['translate'][$k][$e]['store_in'])) {
-                            if (! in_array($this->crud['fields']['translate'][$k][$e]['store_in'].'_trans', $fake_field_columns_to_encode, true)) {
+                            if (!in_array($this->crud['fields']['translate'][$k][$e]['store_in'].'_trans', $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, $this->crud['fields']['translate'][$k][$e]['store_in'].'_trans');
                             }
                         } else {
                             //otherwise in the one defined in the $crud variable
 
-                            if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                            if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, 'extras_trans');
                             }
                         }
@@ -923,13 +916,13 @@ class CrudController extends BaseController
                         // add it to the request in its appropriate variable - the one defined, if defined
 
                         if (isset($this->crud['fields']['normal'][$k]['store_in'])) {
-                            if (! in_array($this->crud['fields']['normal'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
+                            if (!in_array($this->crud['fields']['normal'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, $this->crud['fields']['normal'][$k]['store_in']);
                             }
                         } else {
                             //otherwise in the one defined in the $crud variable
 
-                            if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                            if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                                 array_push($fake_field_columns_to_encode, 'extras');
                             }
                         }
@@ -943,13 +936,13 @@ class CrudController extends BaseController
                     // add it to the request in its appropriate variable - the one defined, if defined
 
                     if (isset($this->crud['fields'][$k]['store_in'])) {
-                        if (! in_array($this->crud['fields'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
+                        if (!in_array($this->crud['fields'][$k]['store_in'], $fake_field_columns_to_encode, true)) {
                             array_push($fake_field_columns_to_encode, $this->crud['fields'][$k]['store_in']);
                         }
                     } else {
                         //otherwise in the one defined in the $crud variable
 
-                        if (! in_array('extras', $fake_field_columns_to_encode, true)) {
+                        if (!in_array('extras', $fake_field_columns_to_encode, true)) {
                             array_push($fake_field_columns_to_encode, 'extras');
                         }
                     }
@@ -957,7 +950,7 @@ class CrudController extends BaseController
             }
         }
 
-        if (! count($fake_field_columns_to_encode)) {
+        if (!count($fake_field_columns_to_encode)) {
             return ['extras'];
         }
 
@@ -969,19 +962,19 @@ class CrudController extends BaseController
     {
         // if the columns aren't set, we can't show this page
         // TODO: instead of dying, show the columns defined as visible on the model
-        if (! isset($this->crud['columns'])) {
+        if (!isset($this->crud['columns'])) {
             abort(500, 'CRUD columns are not defined.');
         }
 
         // if the columns are defined as a string, transform it to a proper array
-        if (! is_array($this->crud['columns'])) {
+        if (!is_array($this->crud['columns'])) {
             $current_columns_array = explode(',', $this->crud['columns']);
 
             $proper_columns_array = [];
 
             foreach ($current_columns_array as $key => $col) {
                 $proper_columns_array[] = [
-                                'name'  => $col,
+                                'name' => $col,
                                 'label' => ucfirst($col), //TODO: also replace _ with space
                             ];
             }
@@ -1001,7 +994,7 @@ class CrudController extends BaseController
     {
         // if the fields have been defined separately for create and update, use that
 
-        if (! isset($this->crud['fields'])) {
+        if (!isset($this->crud['fields'])) {
             if (isset($this->crud['create_fields'])) {
                 $this->crud['fields'] = $this->crud['create_fields'];
             } elseif (isset($this->crud['update_fields'])) {
@@ -1011,20 +1004,20 @@ class CrudController extends BaseController
 
         // PREREQUISITES CHECK:
         // if the fields aren't set, trigger error
-        if (! isset($this->crud['fields'])) {
+        if (!isset($this->crud['fields'])) {
             abort(500, 'The CRUD fields are not defined.');
         }
 
         $languages = false;
         if (isset($this->data['crud']['is_translate'])) {
             if ($this->data['crud']['is_translate']) {
-                $locales = new $this->locale;
+                $locales = new $this->locale();
                 $languages = $locales->getAvailables();
             }
         }
 
         // if the fields are defined as a string, transform it to a proper array
-        if (! is_array($this->crud['fields'])) {
+        if (!is_array($this->crud['fields'])) {
             $current_fields_array = explode(',', $this->crud['fields']);
             $proper_fields_array = [];
 
@@ -1032,16 +1025,16 @@ class CrudController extends BaseController
                 if ($languages) {
                     foreach ($languages as $lang) {
                         $proper_fields_array[$lang] = [
-                                'name'  => $field,
+                                'name' => $field,
                                 'label' => ucfirst($field), // TODO: also replace _ with space
-                                'type'  => 'text', // TODO: choose different types of fields depending on the MySQL column type
+                                'type' => 'text', // TODO: choose different types of fields depending on the MySQL column type
                         ];
                     }
                 } else {
                     $proper_fields_array[] = [
-                            'name'  => $field,
+                            'name' => $field,
                             'label' => ucfirst($field), // TODO: also replace _ with space
-                            'type'  => 'text', // TODO: choose different types of fields depending on the MySQL column type
+                            'type' => 'text', // TODO: choose different types of fields depending on the MySQL column type
                     ];
                 }
             }
@@ -1049,15 +1042,13 @@ class CrudController extends BaseController
             $this->crud['fields'] = $proper_fields_array;
         }
 
-
-
         // if no field type is defined, assume the "text" field type
         foreach ($this->crud['fields'] as $k => $field) {
             //Set label to proper Case
             // if (! isset($this->crud['fields'][$k]['label'])) {
             //     $this->crud['fields'][$k]['label'] = ucfirst($field['label']);
             // }
-            if (! isset($field['type'])) {
+            if (!isset($field['type'])) {
                 $this->crud['fields'][$k]['type'] = 'text';
             }
         }
@@ -1089,7 +1080,7 @@ class CrudController extends BaseController
                     // set the value
                     foreach ($fields['normal'] as $k => $field) {
                         if (isset($field['type'])) {
-                            if (! isset($field['value']) && isset($field['name'])) {
+                            if (!isset($field['value']) && isset($field['name'])) {
                                 $fields['normal'][$k]['value'] = $entry->$field['name'];
                             }
                         } else {
@@ -1101,8 +1092,8 @@ class CrudController extends BaseController
                     foreach ($fields['translate'] as $lang => $fieldArray) {
                         if (is_array($fieldArray)) {
                             foreach ($fieldArray as $e => $field) {
-                                if (! isset($field['value'])) {
-                                    if (! is_null($entry->translate($lang))) {
+                                if (!isset($field['value'])) {
+                                    if (!is_null($entry->translate($lang))) {
                                         if (isset($field['fake']) && $field['fake'] == true) {
                                             $fields['translate'][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field['name']);
                                         } else {
@@ -1120,9 +1111,9 @@ class CrudController extends BaseController
 
                 // always have a hidden input for the entry id
                 $this->crud['fields']['normal'][] = [
-                    'name'  => 'id',
+                    'name' => 'id',
                     'value' => $entry->id,
-                    'type'  => 'hidden',
+                    'type' => 'hidden',
                 ];
             } else {
                 $fields = $this->crud['fields'];
@@ -1130,8 +1121,8 @@ class CrudController extends BaseController
                 foreach ($fields as $k => $field) {
                     // set the value
                     $this->crud['fields'][$k]['label'] = ucfirst($this->crud['fields'][$k]['label']);
-                    if (! isset($this->crud['fields'][$k]['value'])) {
-                        if (! isset($field['entity'])) {
+                    if (!isset($this->crud['fields'][$k]['value'])) {
+                        if (!isset($field['entity'])) {
                             $this->crud['fields'][$k]['value'] = $entry->$field['name'];
                         } else {
                             $results = $entry->{$field['entity']}()->getResults();
@@ -1142,9 +1133,9 @@ class CrudController extends BaseController
 
                 // always have a hidden input for the entry id
                 $this->crud['fields'][] = [
-                    'name'  => 'id',
+                    'name' => 'id',
                     'value' => $entry->id,
-                    'type'  => 'hidden',
+                    'type' => 'hidden',
                 ];
             }
 
@@ -1278,7 +1269,7 @@ class CrudController extends BaseController
 
                         //Multiple Upload
                         foreach ($fileToUpload as $file) {
-                            if (! is_null($file)) {
+                            if (!is_null($file)) {
                                 $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                                 $name = filter_var($name, FILTER_SANITIZE_STRING);
                                 $name = $this->sanitize($name).'.'.$file->getClientOriginalExtension();
@@ -1314,7 +1305,7 @@ class CrudController extends BaseController
      */
     private function getUploadFolder()
     {
-        if (! isset($this->crud['upload_folder'])) {
+        if (!isset($this->crud['upload_folder'])) {
             $folder = '';
         } else {
             $folder = $this->crud['upload_folder'];
@@ -1335,7 +1326,7 @@ class CrudController extends BaseController
             }
         }
 
-        if (! Storage::disk('upload')->exists($folder)) {
+        if (!Storage::disk('upload')->exists($folder)) {
             Storage::disk('upload')->makeDirectory($folder, 0777);
         }
 
@@ -1343,7 +1334,7 @@ class CrudController extends BaseController
             $file = \Request::file($field['name']);
         }
 
-        if (! is_string($file)) {
+        if (!is_string($file)) {
             Storage::disk('upload')->put($folder.'/'.$name, File::get($file));
         }
 
