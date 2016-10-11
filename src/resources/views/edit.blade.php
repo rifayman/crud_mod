@@ -57,3 +57,17 @@
 	</div>
 </div>
 @endsection
+@section('scripts')
+	<script type="text/javascript">
+   		$( document ).ready(function() {
+			@if(class_basename($crud['model']) == 'Page' )
+
+				if($("#select_template").length > 0){
+			       $("#select_template").parent().hide();
+			       $("input[label='Slug']").parent().hide();
+				}
+
+			@endif
+		});
+	</script>
+@endsection
