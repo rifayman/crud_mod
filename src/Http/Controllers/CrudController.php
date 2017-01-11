@@ -149,14 +149,14 @@ class CrudController extends BaseController
         $datatable = Datatables::of($data);
 
         foreach ($columns as $column) {
-            if (isset($column['type']) && $column['type'] == 'select_multiple') {
+            if ((isset($column['type']) && $column['type'] == 'select_multiple') || (isset($column['type']) && $column['type'] == 'select2_multiple')) {
                 $datatable
                     ->addColumn($column['name'], '')
                     ->editColumn($column['name'], function ($columnInfo) use ($column) {
                         $results = $columnInfo->{$column['entity']}()->getResults();
                         $html = '-';
                         if ($results && $results->count()) {
-                            $results_array = $results->lists($column['attribute'], 'id');
+                            $results_array = $results->pluck($column['attribute'], 'id');
                             $html = implode(', ', $results_array->toArray());
                         }
 
@@ -276,14 +276,12 @@ class CrudController extends BaseController
         if (isset($this->crud['add_permission']) && !$this->crud['add_permission']) {
             abort(403, 'Not allowed.');
         }
-
         // compress the fake fields into one field
         $model = $this->crud['model'];
 
         $values_to_store = $this->compactFakeFields(\Request::all());
 
         $values_to_store = $this->hasFilesToUpload($values_to_store);
-
         $translated_items = false;
         if (isset($values_to_store['translate'])) {
             if (isset($this->data['crud']['is_translate']) && $this->data['crud']['is_translate'] == true) {
@@ -299,6 +297,7 @@ class CrudController extends BaseController
                 unset($values_to_store['translate']);
             }
         }
+
         $item = $model::create($values_to_store);
         $fields = $this->getFields();
 
@@ -346,7 +345,7 @@ class CrudController extends BaseController
         $this->prepareFields();
         foreach ($this->crud['fields'] as $k => $field) {
             if (isset($field['pivot']) && $field['pivot'] == true) { //&& \Request::input($field['name'] != 0)
-                $model::find($item->id)->$field['entity']()->attach(\Request::input($field['name']));
+                $model::find($item->id)->{$field['entity']}()->attach(\Request::input($field['name']));
             }
         }
 
@@ -1081,7 +1080,7 @@ class CrudController extends BaseController
                     foreach ($fields['normal'] as $k => $field) {
                         if (isset($field['type'])) {
                             if (!isset($field['value']) && isset($field['name'])) {
-                                $fields['normal'][$k]['value'] = $entry->$field['name'];
+                                $fields['normal'][$k]['value'] = $entry->{$field['name']};
                             }
                         } else {
                             unset($fields['normal'][$k]);
@@ -1097,7 +1096,7 @@ class CrudController extends BaseController
                                         if (isset($field['fake']) && $field['fake'] == true) {
                                             $fields['translate'][$lang][$e]['value'] = $this->getTranslationFake($entry, $field, $lang, $field['name']);
                                         } else {
-                                            $fields['translate'][$lang][$e]['value'] = $entry->translate($lang)->$field['name'];
+                                            $fields['translate'][$lang][$e]['value'] = $entry->translate($lang)->{$field['name']};
                                         }
                                     }
                                 }
@@ -1123,7 +1122,7 @@ class CrudController extends BaseController
                     $this->crud['fields'][$k]['label'] = ucfirst($this->crud['fields'][$k]['label']);
                     if (!isset($this->crud['fields'][$k]['value'])) {
                         if (!isset($field['entity'])) {
-                            $this->crud['fields'][$k]['value'] = $entry->$field['name'];
+                            $this->crud['fields'][$k]['value'] = $entry->{$field['name']};
                         } else {
                             $results = $entry->{$field['entity']}()->getResults();
                             $this->crud['fields'][$k]['value'] = $results;

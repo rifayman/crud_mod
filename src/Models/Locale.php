@@ -26,8 +26,8 @@ class Locale extends Model
      *
      * @return mixed
      */
-    public function getAvailables()
+    public static function getAvailables()
     {
-        return $this->where('state', 1)->get();
+        return self::where('state', 1)->get();
     }
 }
