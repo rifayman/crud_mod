@@ -24,8 +24,6 @@ class CrudServiceProvider extends ServiceProvider
 
     /**
      * Perform post-registration booting of services.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -89,8 +87,6 @@ class CrudServiceProvider extends ServiceProvider
      * Define the routes for the application.
      *
      * @param \Illuminate\Routing\Router $router
-     *
-     * @return void
      */
     public function setupRoutes(Router $router)
     {
@@ -116,8 +112,6 @@ class CrudServiceProvider extends ServiceProvider
 
     /**
      * Register any package services.
-     *
-     * @return void
      */
     public function register()
     {
@@ -149,14 +143,14 @@ class CrudServiceProvider extends ServiceProvider
     public static function resource($name, $controller, array $options = [])
     {
         // CRUD routes
-
-        Route::get($name.'/reorder', $controller.'@reorder');
-        Route::get($name.'/reorder/{lang}', $controller.'@reorder');
-        Route::post($name.'/reorder', $controller.'@saveReorder');
-        Route::post($name.'/reorder/{lang}', $controller.'@saveReorder');
-        Route::get($name.'/{id}/details', $controller.'@showDetailsRow');
-        Route::get($name.'/{id}/translate/{lang}', $controller.'@translateItem');
-        Route::get($name.'/getData', $controller.'@getData');
+        $prefixName = str_replace('/', '.', $name);
+        Route::get($name.'/reorder', ['as' => $prefixName.'.reorder', 'uses' => $controller.'@reorder']);
+        Route::get($name.'/reorder/{lang}', ['as' => $prefixName.'.reorder.item', 'uses' => $controller.'@reorder']);
+        Route::post($name.'/reorder', ['as' => $prefixName.'.reorder.post', 'uses' => $controller.'@reorder']);
+        Route::post($name.'/reorder/{lang}', ['as' => $prefixName.'.reorder.item.post', 'uses' => $controller.'@reorder']);
+        Route::get($name.'/{id}/details', ['as' => $prefixName.'.details', 'uses' => $controller.'@showDetailsRow']);
+        Route::get($name.'/{id}/translate/{lang}', ['as' => $prefixName.'.translate', 'uses' => $controller.'@translateItem']);
+        Route::get($name.'/getData', ['as' => $prefixName.'.ajax', 'uses' => $controller.'@getData']);
         Route::resource($name, $controller, $options);
     }
 
