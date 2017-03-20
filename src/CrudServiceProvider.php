@@ -6,14 +6,14 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Route;
 use Storage;
-use Illuminate\Console\AppNamespaceDetectorTrait;
+use Illuminate\Console\DetectsApplicationNamespace;
 use Infinety\CRUD\Commands\CrudCreatorHelper;
 use Infinety\CRUD\Commands\CrudCreatorHelperInline;
 use Infinety\CRUD\Commands\CrudInstaller;
 
 class CrudServiceProvider extends ServiceProvider
 {
-    use AppNamespaceDetectorTrait;
+    use DetectsApplicationNamespace;
 
     /**
      * Indicates if loading of the provider is deferred.
