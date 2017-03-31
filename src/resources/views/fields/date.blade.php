@@ -1,5 +1,5 @@
 <!-- html5 date input -->
-  <div class="form-group">
+  <div class="form-group form-group-default">
     <label>{{ $field['label'] }}</label>
     <input
         type="date"
@@ -7,7 +7,7 @@
 
         @foreach ($field as $attribute => $value)
             @if ($attribute=='value')
-                value="{{ $field['value']->toDateString() }}"
+                value="{{ $field['value'] }}"
             @else
                 {{ $attribute }}="{{ $value }}"
             @endif

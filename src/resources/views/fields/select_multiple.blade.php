@@ -20,7 +20,7 @@
 						@if (isset($field['value']) && in_array($connected_entity_entry->id, $field['value']->lists('id', 'id')->toArray()))
 							 selected
 						@endif
-	    			>{{ $connected_entity_entry->$field['attribute'] }}</option>
+	    			>{{ $connected_entity_entry->{$field['attribute']} }}</option>
 	    		@endforeach
 	    	@endif
 	</select>

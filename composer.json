@@ -1,5 +1,5 @@
 {
-    "name": "rifayman/crud_mod",
+    "name": "infinety-es/crud",
     "description": "Quickly build an admin interface for your Eloquent models, using Laravel 5. Build a CMS in a matter of minutes.",
     "keywords": [
         "CRUD",
@@ -7,9 +7,7 @@
         "update",
         "delete",
         "read",
-        "admin panel",
-        "admin interface",
-        "CMS"
+        "infinety"
     ],
     "license": "MIT",
     "authors": [
@@ -19,9 +17,15 @@
         }
     ],
     "require": {
-        "illuminate/support": "~5.1",
-        "php" : ">=5.3.0",
-        "prologue/alerts": "0.*"
+        "illuminate/support": "5.4.*",
+        "php" : "^7.0",
+        "jenssegers/date" :"^3.2",
+        "laravelcollective/html" : "5.4.*",
+        "vinkla/translator" : "4.*",
+        "yajra/laravel-datatables-oracle" : "7.*",
+        "jorgejavierleon/laravelpnotify" : "~1.0",
+        "infinety-es/filemanager": "2.*",
+        "spatie/laravel-medialibrary": "4.*"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",

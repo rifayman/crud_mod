@@ -1,14 +1,21 @@
 
 <div class="form-group form-group-default">
-    {!! Form::open(['action'=>'\starter\Admin\Pages\Controllers\PageCrudController@upload', 'files'=>true]) !!}
 
 
+        @if(isset($field["value"]))
+                @if(isset($crud["prepend-url-upload"]))
+                        <img class="output" src="{{ url($crud["prepend-url-upload"].'uploads/'.$field["value"])  }}" width="20%" height="5%"/>
+                @else
+                        <img class="output" src="{{ url('uploads/'.$field["value"])  }}" width="20%" height="5%"/>
+                @endif
+        @else
+                <img class="output" src="" width="20%" height="5%"/>
+        @endif
 
-    <div class="form-control">
         {!! Form::label('image', 'Choose an image') !!}
-        {!! Form::file('image') !!}
-    </div>
+        {!! Form::file('image',['name' => $field["name"], 'id' => $field["name"],  'class' => 'upload_file']) !!}
 
 
-    {!! Form::close() !!}
 </div>
+
+

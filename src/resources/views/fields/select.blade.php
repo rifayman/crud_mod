@@ -1,5 +1,5 @@
 <!-- select -->
-  <div class="form-group">
+<div class="form-group form-group-default">
     <label>{{ $field['label'] }}</label>
     <?php $entity_model = $crud['model']; ?>
     <select
@@ -16,12 +16,10 @@
 
 	    	@if (isset($field['model']))
 	    		@foreach ($field['model']::all() as $connected_entity_entry)
-	    			<option value="{{ $connected_entity_entry->id }}"
-						@if (isset($field['value']) && $connected_entity_entry->id==$field['value'])
-							 selected
-						@endif
-	    			>{{ $connected_entity_entry->$field['attribute'] }}</option>
+	    			<option value="{{ $connected_entity_entry->id }}" {{ (isset($field['value']) && $connected_entity_entry->id==$field['value']) ? 'selected' : '' }}>
+						{{ $connected_entity_entry->$field['attribute'] }}
+					</option>
 	    		@endforeach
 	    	@endif
 	</select>
-  </div>
+</div>

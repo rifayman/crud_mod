@@ -17,10 +17,10 @@
 	    	@if (isset($field['model']))
 	    		@foreach ($field['model']::all() as $connected_entity_entry)
 	    			<option value="{{ $connected_entity_entry->id }}"
-						@if (isset($field['value']) && in_array($connected_entity_entry->id, $field['value']->lists('id', 'id')->toArray()))
+						@if (isset($field['value']) && in_array($connected_entity_entry->id, $field['value']->pluck('id', 'id')->toArray()))
 							 selected
 						@endif
-	    			>{{ $connected_entity_entry->$field['attribute'] }}</option>
+	    			>{{ $connected_entity_entry->{$field['attribute']} }}</option>
 	    		@endforeach
 	    	@endif
 	</select>

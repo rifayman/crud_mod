@@ -1,25 +1,27 @@
 <form role="form">
-  {{-- Show the erros, if any --}}
-  @if ($errors->any())
-  	<div class="callout callout-danger">
-        <h4>{{ trans('validation.please_fix') }}</h4>
-        <ul>
-		@foreach($errors->all() as $error)
-			<li>{{ $error }}</li>
-		@endforeach
-		</ul>
-	</div>
-  @endif
 
   {{-- Show the inputs --}}
   @foreach ($crud['fields'] as $field)
-    <!-- load the view from the application if it exists, otherwise load the one in the package -->
-	@if(view()->exists('crud::fields.'.$field['type']))
-		@include('crud::fields.'.$field['type'], array('field' => $field))
-	@else
-		@include('crud::fields.'.$field['type'], array('field' => $field))
-	@endif
-  @endforeach
+
+  {{-- splits by sections --}}
+  @if(isset($field["section"]))
+	  @if($y == 0)
+		  <?php $section = $field["section"]; ?>
+	  @else
+		  @if($section != $field["section"])
+			  <?php $section = $field["section"]; ?>
+			  <hr />
+			  <h4>{{ ucfirst($section) }}</h4>
+		  @endif
+	  @endif
+  @endif
+  <!-- load the view from the application if it exists, otherwise load the one in the package -->
+  @if(view()->exists('crud::fields.'.$field['type']))
+      @include('crud::fields.'.$field['type'], array('field' => $field))
+  @else
+      @include('crud::fields.'.$field['type'], array('field' => $field))
+  @endif
+@endforeach
 </form>
 
 {{-- For each form type, load its assets, if needed --}}
